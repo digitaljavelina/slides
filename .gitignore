@@ -7,11 +7,7 @@
 # ==========================================================================
 
 # Generated deck output (one folder per deck under `decks/<slug>/`).
-# The `marp-features-demo` deck is an exception: it documents marp-slides
-# features and is intentionally tracked.
 decks/
-!decks/marp-features-demo/
-!decks/marp-features-demo/**
 
 # Brand artefact decks — original AI-in-Safety-Pharmacology examples
 # from the build session that established the brand. Useful as local
