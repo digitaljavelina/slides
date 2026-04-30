@@ -1,1 +1,28 @@
 .DS_Store
+
+# ==========================================================================
+# This is a template repo — the skills, templates, and tooling live in git;
+# the decks they produce do not. Keep example deck output local-only so the
+# repo stays clean for team members who clone it and start their own decks.
+# ==========================================================================
+
+# Generated deck output (one folder per deck under `decks/<slug>/`).
+# The `marp-features-demo` deck is an exception: it documents marp-slides
+# features and is intentionally tracked.
+decks/
+!decks/marp-features-demo/
+!decks/marp-features-demo/**
+
+# Brand artefact decks — original AI-in-Safety-Pharmacology examples
+# from the build session that established the brand. Useful as local
+# references; not needed in the team-shared template repo.
+ai-safety-pharmacology.md
+ai-safety-pharmacology.pdf
+ai-safety-pharmacology.pptx
+ai-safety-pharmacology-frontend/
+
+# AI-generated images cached for the branded-slides starter deck.
+# Each user regenerates these on demand via scripts/generate_images.sh.
+# Committing them would mean every clone gets the original generator's
+# images instead of their own.
+.claude/skills/branded-slides/templates/images/
