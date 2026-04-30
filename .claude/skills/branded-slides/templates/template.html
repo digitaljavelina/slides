@@ -351,17 +351,20 @@
          existing content children (section-head, three-up, row-list, etc.)
          keep their natural vertical-stack layout. The slide-content gets
          right-padding bumped to leave room for the image. */
+      /* 28% width (was 38%) — empirically the right tradeoff: 38% squeezed
+         medium-density slides (3-up cards + stat-row, row-list of 4, etc.)
+         into vertical overflow. 28% leaves 72% for content, which fits. */
       .slide:has(.slide-image) .slide-content {
-        padding-right: calc(var(--slide-padding) + 38% + 1.5rem);
+        padding-right: calc(var(--slide-padding) + 28% + 1.5rem);
       }
       .slide-image {
         position: absolute;
         right: var(--slide-padding);
         top: 50%;
         transform: translateY(-50%);
-        width: 38%;
-        max-width: 540px;
-        max-height: min(70vh, 600px);
+        width: 28%;
+        max-width: 380px;
+        max-height: min(55vh, 480px);
         aspect-ratio: 4 / 5;
         border-radius: clamp(8px, 1vw, 14px);
         overflow: hidden;
@@ -477,17 +480,20 @@
         letter-spacing: 0.05em;
       }
 
+      /* Tightened 2026-04-30 — earlier values overflowed when row-list had
+         4 items on a slide that also had a contextual image. New padding is
+         comfortable, not generous; works for 2–5 rows with or without image. */
       .row-list {
         display: flex;
         flex-direction: column;
-        gap: clamp(0.4rem, 1vh, 0.8rem);
+        gap: clamp(0.35rem, 0.8vh, 0.6rem);
       }
       .row {
         display: grid;
-        grid-template-columns: clamp(44px, 5.5vw, 64px) 1fr auto;
+        grid-template-columns: clamp(40px, 5vw, 56px) 1fr auto;
         align-items: center;
-        gap: clamp(0.85rem, 1.7vw, 1.5rem);
-        padding: clamp(1rem, 1.8vw, 1.6rem) clamp(1.1rem, 1.9vw, 1.7rem);
+        gap: clamp(0.75rem, 1.5vw, 1.3rem);
+        padding: clamp(0.75rem, 1.4vw, 1.15rem) clamp(1rem, 1.8vw, 1.55rem);
         background: var(--bg-elevated);
         border: 1px solid var(--line);
         border-radius: clamp(10px, 1.1vw, 14px);
@@ -511,17 +517,19 @@
           --accent
         ); /* drives child SVGs using stroke="currentColor" */
       }
+      /* Row title slightly smaller than --h3-size; row description uses
+         --small-size so secondary info yields visual weight to the title. */
       .row-title {
         font-family: var(--font-display);
-        font-size: var(--h3-size);
+        font-size: clamp(1.05rem, 2.1vw, 1.55rem);
         color: var(--text-primary);
         font-weight: 600;
-        margin-bottom: 4px;
+        margin-bottom: 3px;
       }
       .row-desc {
-        font-size: var(--body-size);
+        font-size: var(--small-size);
         color: var(--text-secondary);
-        line-height: 1.55;
+        line-height: 1.5;
       }
       .row-cite {
         font-family: var(--font-mono);
@@ -633,16 +641,22 @@
         line-height: 1;
         font-weight: 700;
       }
+      /* Ring-label tightened so longer labels (e.g. "USING OR PLANNING AI")
+         break inside the ring's inner space rather than overflowing the
+         stroke. overflow-wrap is the escape hatch when max-width alone
+         won't force a break. */
       .ring-label {
         font-family: var(--font-mono);
-        font-size: clamp(0.7rem, 0.85vw, 0.85rem);
+        font-size: clamp(0.65rem, 0.78vw, 0.78rem);
         color: var(--text-muted);
-        letter-spacing: 0.12em;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
-        margin-top: 8px;
-        max-width: 70%;
+        margin-top: 10px;
+        max-width: 55%;
         line-height: 1.35;
         text-align: center;
+        overflow-wrap: anywhere;
+        word-break: break-word;
       }
       .survey-meta {
         display: flex;
