@@ -51,19 +51,27 @@ audience reads what you write before they hear what you say.
 
 # Two columns
 
-::: columns
-:::: column
+<!--
+Pandoc's PPTX writer is strict about columns: the columns block must be
+the slide's ONLY content (besides the H1 title). Prose before or after the
+columns will be split into separate slides. Fold any framing into the
+columns themselves. Outer fence needs MORE colons than inner.
+-->
+
+:::::: {.columns}
+::: {.column}
 **On the left**
 
 State the claim, the option you're recommending, or the "before" picture.
-:::::
-:::: column
+:::
+
+::: {.column}
 **On the right**
 
 State the contrast, the alternative, or the "after" picture. Keep both sides
 roughly the same length.
-:::::
 :::
+::::::
 
 ---
 

@@ -54,17 +54,20 @@ That script fetches pandoc's default reference, patches its OOXML theme block wi
 
 1. **Front-matter is required.** Set `palette:` to `light-clinical` or `dark-minimal`. Add `title`, `author`, `date`, optional `footer`.
 2. **`---` separates slides.** One H1 per slide is the slide title.
-3. **Two columns** use pandoc fenced divs:
+3. **Two columns** use pandoc fenced divs. **Outer fence must have MORE colons than inner**, and the columns block must be the slide's ONLY content (besides the H1) — pandoc-pptx splits surrounding prose into separate slides. Fold framing into the columns themselves:
+
    ```
-   ::: columns
-   :::: column
+   :::::: {.columns}
+   ::: {.column}
    left content
-   :::::
-   :::: column
-   right content
-   :::::
    :::
+
+   ::: {.column}
+   right content
+   :::
+   ::::::
    ```
+
 4. **Images** use plain `![alt text](path)`. The alt text becomes the caption underneath. Paths resolve against the source's directory and the skill root.
 5. **Speaker notes** go inside HTML comments — pandoc converts them to PPTX notes:
    ```
