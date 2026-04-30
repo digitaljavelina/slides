@@ -1,0 +1,1090 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Starter Deck — branded-slides</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <!-- This file is a copy of templates/template.html with the SLIDES placeholder filled in.
+         When the skill generates a new deck, it copies template.html and substitutes the same way. -->
+    <style>
+      /* For the starter deck, pull in styles from the template via inline duplication.
+         Real generated decks should keep their own copy of these styles. */
+      @import url("./template.html") screen;
+    </style>
+    <!--
+      NOTE: @import on local HTML files isn't real CSS. The starter deck is meant to be
+      *opened* via a small inline-styles dump from template.html. To keep this file
+      runnable as-is, we'll inline a slimmed style block below. The full brand styles
+      live in template.html — when generating a new deck, copy template.html's <style>
+      block verbatim. For starter-only viewing, this minimal style block is sufficient
+      to demonstrate the structure; the production deck path always uses template.html.
+    -->
+    <style>
+      /* Minimal styles to make the starter renderable on its own.
+         For the canonical brand styling, see templates/template.html. */
+      :root {
+        --font-display: "Space Grotesk", system-ui, sans-serif;
+        --font-body: "Inter", system-ui, sans-serif;
+        --font-mono: "JetBrains Mono", "Menlo", monospace;
+        --title-size: clamp(2.4rem, 7vw, 6rem);
+        --h2-size: clamp(1.9rem, 4.5vw, 3.6rem);
+        --h3-size: clamp(1.25rem, 2.6vw, 1.9rem);
+        --body-size: clamp(1.1rem, 1.7vw, 1.4rem);
+        --small-size: clamp(0.95rem, 1.35vw, 1.2rem);
+        --eyebrow-size: clamp(0.78rem, 1vw, 0.95rem);
+        --slide-padding: clamp(1.5rem, 4vw, 4rem);
+        --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        --duration-norm: 0.7s;
+      }
+      body[data-palette="dark-minimal"] {
+        --bg-primary: #0a0a0a;
+        --bg-elevated: #141414;
+        --bg-surface: #1c1c1c;
+        --line: rgba(255, 255, 255, 0.08);
+        --line-strong: rgba(255, 255, 255, 0.16);
+        --text-primary: #ffffff;
+        --text-secondary: #b8b8b8;
+        --text-muted: #6a6a6a;
+        --accent: #ef4444;
+        --accent-strong: #dc2626;
+        --accent-soft: rgba(239, 68, 68, 0.15);
+      }
+      body {
+        --accent-warm: var(--accent);
+        --accent-pink: var(--accent);
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        overflow-x: hidden;
+      }
+      html {
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: var(--font-body);
+        font-weight: 400;
+        color: var(--text-primary);
+        background: var(--bg-primary);
+        -webkit-font-smoothing: antialiased;
+      }
+      .slide {
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+        scroll-snap-align: start;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        isolation: isolate;
+      }
+      .slide-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: var(--slide-padding);
+        max-height: 100%;
+        overflow: hidden;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        line-height: 1.1;
+        letter-spacing: -0.025em;
+      }
+      h2 {
+        font-size: var(--h2-size);
+        font-weight: 600;
+      }
+      h3 {
+        font-size: var(--h3-size);
+        font-weight: 600;
+      }
+      em {
+        font-style: normal;
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .eyebrow {
+        font-family: var(--font-mono);
+        font-weight: 500;
+        font-size: var(--eyebrow-size);
+        color: var(--accent);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+      p {
+        font-size: var(--body-size);
+        color: var(--text-secondary);
+        line-height: 1.6;
+      }
+      .reveal {
+        opacity: 0;
+        transform: translateY(28px);
+        transition:
+          opacity var(--duration-norm) var(--ease-out-expo),
+          transform var(--duration-norm) var(--ease-out-expo);
+      }
+      .slide.visible .reveal {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .stagger {
+        transition-delay: calc(var(--i, 0) * 0.08s + 0.1s);
+      }
+      .progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 2px;
+        width: 0%;
+        background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+        z-index: 100;
+        transition: width 0.18s ease-out;
+      }
+      .nav-dots {
+        position: fixed;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 90;
+      }
+      .nav-dots button {
+        width: 9px;
+        height: 9px;
+        border: 1px solid var(--line-strong);
+        border-radius: 50%;
+        background: transparent;
+        cursor: pointer;
+        padding: 0;
+      }
+      .nav-dots button.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        transform: scale(1.25);
+      }
+      .section-head {
+        margin-bottom: clamp(1rem, 3vh, 2.2rem);
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+      }
+      .three-up {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+      }
+      .four-up {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 1rem;
+      }
+      .card {
+        background: var(--bg-elevated);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: clamp(1.25rem, 2.2vw, 2.2rem);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 56px;
+        height: 2px;
+        background: var(--accent);
+      }
+      .card-eyebrow {
+        font-family: var(--font-mono);
+        font-size: var(--eyebrow-size);
+        color: var(--accent);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        font-weight: 500;
+      }
+      .card p {
+        font-size: var(--body-size);
+        line-height: 1.55;
+      }
+      .row-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 64px 1fr auto;
+        gap: 1.2rem;
+        align-items: center;
+        padding: 1.2rem 1.4rem;
+        background: var(--bg-elevated);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+      .row-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: var(--accent-soft);
+        border: 1px solid var(--line-strong);
+        color: var(--accent);
+      }
+      .row-title {
+        font-family: var(--font-display);
+        font-size: var(--h3-size);
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+      }
+      .row-desc {
+        font-size: var(--body-size);
+        color: var(--text-secondary);
+      }
+      .row-cite {
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+      }
+      .pull-quote {
+        max-width: 1200px;
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: clamp(2rem, 5.2vw, 4.2rem);
+        line-height: 1.15;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+      }
+      .pull-quote .highlight {
+        background: var(--accent-soft);
+        padding: 0 0.15em;
+        border-radius: 2px;
+      }
+      .stat-row {
+        display: flex;
+        gap: 3rem;
+        margin-top: 1.5rem;
+      }
+      .stat {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+      .stat-num {
+        font-family: var(--font-display);
+        font-size: clamp(2.6rem, 7vw, 5.2rem);
+        font-weight: 700;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .stat-label {
+        font-family: var(--font-mono);
+        font-size: var(--eyebrow-size);
+        color: var(--text-muted);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+      }
+      .stat-desc {
+        font-size: var(--small-size);
+        color: var(--text-secondary);
+      }
+      .survey-block {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 3rem;
+        align-items: center;
+      }
+      .ring {
+        width: clamp(180px, 26vw, 280px);
+        height: clamp(180px, 26vw, 280px);
+        position: relative;
+      }
+      .ring svg {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+      }
+      .ring-bg {
+        stroke: var(--line-strong);
+      }
+      .ring-fg {
+        stroke: var(--accent);
+        stroke-linecap: round;
+        stroke-dasharray: 502.65;
+        stroke-dashoffset: 502.65;
+        transition: stroke-dashoffset 1.6s var(--ease-out-expo) 0.3s;
+      }
+      .slide.visible .ring-fg {
+        stroke-dashoffset: 240;
+      }
+      .ring-center {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .ring-num {
+        font-family: var(--font-display);
+        font-size: clamp(2.4rem, 6vw, 4rem);
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .ring-label {
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        max-width: 70%;
+        margin-top: 8px;
+        text-align: center;
+      }
+      .timeline {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 1rem;
+      }
+      .timeline-track {
+        width: 1px;
+        background: linear-gradient(
+          180deg,
+          var(--accent),
+          var(--accent-strong) 50%,
+          var(--line)
+        );
+      }
+      .timeline-items {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .t-item {
+        position: relative;
+        padding: 0.8rem 0 0.8rem 1.5rem;
+      }
+      .t-item::before {
+        content: "";
+        position: absolute;
+        left: -0.5rem;
+        top: 1rem;
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: var(--bg-primary);
+        border: 1.5px solid var(--accent);
+      }
+      .t-item.featured::before {
+        background: var(--accent);
+      }
+      .t-date {
+        font-family: var(--font-mono);
+        font-size: var(--eyebrow-size);
+        color: var(--accent);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+      .t-title {
+        font-family: var(--font-display);
+        font-size: var(--h3-size);
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+      }
+      .t-desc {
+        font-size: var(--body-size);
+        color: var(--text-secondary);
+      }
+      .title-slide .slide-content {
+        align-items: flex-start;
+      }
+      .title-slide h1 {
+        font-size: clamp(2.4rem, 7.5vw, 6.5rem);
+        font-weight: 700;
+      }
+      .title-slide .subtitle {
+        margin-top: 1rem;
+        font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+        color: var(--text-secondary);
+      }
+      .title-meta {
+        display: grid;
+        grid-template-columns: repeat(3, auto);
+        gap: 3rem;
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--line);
+      }
+      .title-meta dt {
+        font-family: var(--font-mono);
+        font-size: var(--eyebrow-size);
+        color: var(--accent);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+      .title-meta dd {
+        font-family: var(--font-display);
+        font-size: var(--body-size);
+        color: var(--text-secondary);
+      }
+      .closing {
+        align-items: flex-start;
+        gap: 2rem;
+      }
+      .closing-quote {
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: clamp(2rem, 5.4vw, 4.4rem);
+        line-height: 1.15;
+        color: var(--text-primary);
+      }
+      .closing-quote .accent {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .closing-attr {
+        font-family: var(--font-mono);
+        font-size: var(--eyebrow-size);
+        color: var(--text-muted);
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+      }
+      .small {
+        font-size: var(--small-size);
+        color: var(--text-muted);
+      }
+    </style>
+  </head>
+
+  <body data-palette="dark-minimal">
+    <div class="progress-bar"></div>
+    <nav class="nav-dots" aria-label="Slide navigation"></nav>
+
+    <!-- ============================================
+         SLIDE 1 — Title (sparse → background image)
+         ============================================ -->
+    <section
+      class="slide title-slide"
+      data-title="Title"
+      data-image-prompt="abstract editorial backdrop, scientific theme, minimal composition"
+    >
+      <img class="slide-bg" src="images/title.png" alt="" aria-hidden="true">
+
+      <div class="slide-content">
+        <span class="eyebrow reveal stagger" style="--i: 0">
+          Starter · branded-slides
+        </span>
+        <h1 class="reveal stagger" style="--i: 1">
+          A 10-slide<br />starter <em>deck</em>
+        </h1>
+        <p class="subtitle reveal stagger" style="--i: 2">
+          Demonstrates every brand layout pattern. Edit the content, run image
+          gen, ship.
+        </p>
+        <dl class="title-meta reveal stagger" style="--i: 3">
+          <div>
+            <dt>Author</dt>
+            <dd>You</dd>
+          </div>
+          <div>
+            <dt>Date</dt>
+            <dd>Today</dd>
+          </div>
+          <div>
+            <dt>Source</dt>
+            <dd>This skill</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 2 — Stat row + cards (medium → contextual)
+         ============================================ -->
+    <section
+      class="slide"
+      data-title="The data problem"
+      data-image-prompt="abstract gradient with overlapping data shapes, single accent color, minimal"
+    >
+      <div class="slide-content">
+        <div class="section-head">
+          <span class="eyebrow reveal stagger" style="--i: 0">
+            Why now · the data problem
+          </span>
+          <h2 class="reveal stagger" style="--i: 1">
+            Modalities and data sources are <em>outpacing</em> traditional
+            analysis.
+          </h2>
+        </div>
+        <div class="three-up">
+          <div class="card reveal stagger" style="--i: 2">
+            <span class="card-eyebrow">New modalities</span>
+            <h3>Beyond small molecules</h3>
+            <p>
+              Monoclonal antibodies, antibody–drug conjugates, and RNA-based
+              therapeutics each bring distinct safety considerations.
+            </p>
+          </div>
+          <div class="card reveal stagger" style="--i: 3">
+            <span class="card-eyebrow">Heterogeneous data</span>
+            <h3>One compound, many readouts</h3>
+            <p>
+              Chemical structure, in vitro assays, in vivo telemetry, in silico
+              simulations, historical compound databases.
+            </p>
+          </div>
+          <div class="card reveal stagger" style="--i: 4">
+            <span class="card-eyebrow">Decision pressure</span>
+            <h3>Faster <em>go / no-go</em></h3>
+            <p>
+              Patterns across multidimensional data — beyond what
+              single-biomarker thresholds resolve.
+            </p>
+          </div>
+        </div>
+        <div class="stat-row reveal stagger" style="--i: 5">
+          <div class="stat">
+            <span class="stat-num">~63<em>%</em></span>
+            <span class="stat-label">of pharma · 2024 survey</span>
+            <span class="stat-desc"
+              >allocate up to 10% of tech investment to generative AI.</span
+            >
+          </div>
+        </div>
+      
+        <aside class="slide-image"><img src="images/the-data-problem.png" alt="" aria-hidden="true"></aside>
+</div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 3 — Three forces (medium → contextual)
+         ============================================ -->
+    <section
+      class="slide"
+      data-title="Foundations"
+      data-image-prompt="three abstract elements representing compute, data, and algorithms, minimal triptych"
+    >
+      <div class="slide-content">
+        <div class="section-head">
+          <span class="eyebrow reveal stagger" style="--i: 0">Foundations</span>
+          <h2 class="reveal stagger" style="--i: 1">
+            Three forces <em>finally converged</em>.
+          </h2>
+        </div>
+        <div class="three-up">
+          <div class="card reveal stagger" style="--i: 2">
+            <span class="card-eyebrow">Force 01 · Compute</span>
+            <h3>GPUs at scale</h3>
+            <p>
+              HPC convergence makes deep training tractable on real-world data
+              sizes.
+            </p>
+          </div>
+          <div class="card reveal stagger" style="--i: 3">
+            <span class="card-eyebrow">Force 02 · Data</span>
+            <h3>Vast curated archives</h3>
+            <p>Sufficient signal for modern training regimes across domains.</p>
+          </div>
+          <div class="card reveal stagger" style="--i: 4">
+            <span class="card-eyebrow">Force 03 · Algorithms</span>
+            <h3>Deep learning matures</h3>
+            <p>
+              GNNs, transformers, foundation models — newly capable of
+              integration.
+            </p>
+          </div>
+        </div>
+      
+        <aside class="slide-image"><img src="images/foundations.png" alt="" aria-hidden="true"></aside>
+</div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 4 — Application 1 (medium → contextual)
+         ============================================ -->
+    <section
+      class="slide"
+      data-title="Application 1"
+      data-image-prompt="abstract anatomical line-art representing a body system, minimal monochrome accent"
+    >
+      <div class="slide-content">
+        <div class="section-head">
+          <span class="eyebrow reveal stagger" style="--i: 0"
+            >Application area · 1</span
+          >
+          <h2 class="reveal stagger" style="--i: 1">
+            Stratifying risk <em>earlier</em>.
+          </h2>
+        </div>
+        <div class="three-up">
+          <div class="card reveal stagger" style="--i: 2">
+            <span class="card-eyebrow">Method 01</span>
+            <h3>Pattern A</h3>
+            <p>Brief description of method A. One or two sentences max.</p>
+          </div>
+          <div class="card reveal stagger" style="--i: 3">
+            <span class="card-eyebrow">Method 02</span>
+            <h3>Pattern B</h3>
+            <p>Brief description of method B.</p>
+          </div>
+          <div class="card reveal stagger" style="--i: 4">
+            <span class="card-eyebrow">Method 03</span>
+            <h3>Pattern C</h3>
+            <p>Brief description of method C.</p>
+          </div>
+        </div>
+      
+        <aside class="slide-image"><img src="images/application-1.png" alt="" aria-hidden="true"></aside>
+</div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 5 — Row-list (medium → contextual)
+         ============================================ -->
+    <section
+      class="slide"
+      data-title="Beyond the heart"
+      data-image-prompt="abstract diagram showing multiple body systems, monochrome line-art with single accent"
+    >
+      <div class="slide-content">
+        <div class="section-head">
+          <span class="eyebrow reveal stagger" style="--i: 0">
+            Across every system
+          </span>
+          <h2 class="reveal stagger" style="--i: 1">
+            Moving across <em>every</em> domain.
+          </h2>
+        </div>
+        <div class="row-list">
+          <div class="row reveal stagger" style="--i: 2">
+            <div class="row-icon">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 3v18M3 12h18" />
+              </svg>
+            </div>
+            <div>
+              <div class="row-title">Domain 1</div>
+              <div class="row-desc">
+                Description of how AI is being applied in this area.
+              </div>
+            </div>
+            <div class="row-cite">Author Year</div>
+          </div>
+          <div class="row reveal stagger" style="--i: 3">
+            <div class="row-icon">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M3 12c4-8 14-8 18 0-4 8-14 8-18 0z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </div>
+            <div>
+              <div class="row-title">Domain 2</div>
+              <div class="row-desc">
+                Description of how AI is being applied in this area.
+              </div>
+            </div>
+            <div class="row-cite">Author Year</div>
+          </div>
+          <div class="row reveal stagger" style="--i: 4">
+            <div class="row-icon">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M3 12h3l3-9 3 18 3-9h6" />
+              </svg>
+            </div>
+            <div>
+              <div class="row-title">Domain 3</div>
+              <div class="row-desc">
+                Description of how AI is being applied in this area.
+              </div>
+            </div>
+            <div class="row-cite">Author Year</div>
+          </div>
+          <div class="row reveal stagger" style="--i: 5">
+            <div class="row-icon">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="8" r="4" />
+                <path d="M5 22a7 7 0 0 1 14 0" />
+              </svg>
+            </div>
+            <div>
+              <div class="row-title">Domain 4</div>
+              <div class="row-desc">
+                Description of how AI is being applied in this area.
+              </div>
+            </div>
+            <div class="row-cite">Author Year</div>
+          </div>
+        </div>
+      
+        <aside class="slide-image"><img src="images/beyond-the-heart.png" alt="" aria-hidden="true"></aside>
+</div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 6 — Pull-quote (sparse → background)
+         ============================================ -->
+    <section
+      class="slide"
+      data-title="Headline finding"
+      data-image-prompt="dramatic close-up of laboratory equipment or scientific imagery, low-key cinematic"
+    >
+      <img class="slide-bg" src="images/headline-finding.png" alt="" aria-hidden="true">
+
+      <div class="slide-content">
+        <div class="section-head">
+          <span class="eyebrow reveal stagger" style="--i: 0"
+            >The headline</span
+          >
+        </div>
+        <div class="pull-quote reveal stagger" style="--i: 1">
+          The big finding from this section <em>matches</em> — or
+          <span class="highlight">exceeds</span> — what came before.
+        </div>
+        <p class="reveal stagger small" style="--i: 2; margin-top: 1.6rem">
+          — Author et al., Year
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 7 — Survey ring (sparse → none / chart speaks)
+         ============================================ -->
+    <section class="slide" data-title="Survey" data-no-image>
+      <div class="slide-content">
+        <div class="section-head">
+          <span class="eyebrow reveal stagger" style="--i: 0">
+            Survey · 2024
+          </span>
+          <h2 class="reveal stagger" style="--i: 1">
+            Where the field <em>actually stands</em>.
+          </h2>
+        </div>
+        <div class="survey-block">
+          <div class="ring reveal stagger" style="--i: 2">
+            <svg viewBox="0 0 200 200" aria-hidden="true">
+              <circle
+                class="ring-bg"
+                cx="100"
+                cy="100"
+                r="80"
+                fill="none"
+                stroke-width="14"
+              />
+              <circle
+                class="ring-fg"
+                cx="100"
+                cy="100"
+                r="80"
+                fill="none"
+                stroke-width="14"
+              />
+            </svg>
+            <div class="ring-center">
+              <div class="ring-num">52<em>%</em></div>
+              <div class="ring-label">using or planning</div>
+            </div>
+          </div>
+          <div>
+            <p class="reveal stagger" style="--i: 3; margin-bottom: 1rem">
+              Context paragraph for the metric. Why it matters and what
+              population was sampled.
+            </p>
+            <p class="reveal stagger small" style="--i: 4">
+              N = 89 total respondents · n = 46 reporting current or planned use
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 8 — Timeline (medium → none / chart speaks)
+         ============================================ -->
+    <section class="slide" data-title="Regulatory" data-no-image>
+      <div class="slide-content">
+        <div class="section-head">
+          <span class="eyebrow reveal stagger" style="--i: 0">
+            Guidance · 2024 → 2026
+          </span>
+          <h2 class="reveal stagger" style="--i: 1">
+            The framework is <em>catching up</em>.
+          </h2>
+        </div>
+        <div class="timeline reveal stagger" style="--i: 2">
+          <div class="timeline-track"></div>
+          <div class="timeline-items">
+            <div class="t-item">
+              <div class="t-date">2024</div>
+              <div class="t-title">First milestone</div>
+              <div class="t-desc">One-sentence description.</div>
+            </div>
+            <div class="t-item featured">
+              <div class="t-date">January 2025 · headline</div>
+              <div class="t-title">Most-important milestone</div>
+              <div class="t-desc">Why it matters and what changed.</div>
+            </div>
+            <div class="t-item">
+              <div class="t-date">2025</div>
+              <div class="t-title">Third milestone</div>
+              <div class="t-desc">Continuation of the trend.</div>
+            </div>
+            <div class="t-item">
+              <div class="t-date">2026 → onward</div>
+              <div class="t-title">Looking ahead</div>
+              <div class="t-desc">What's expected next.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 9 — Four-up grid (dense → none)
+         ============================================ -->
+    <section class="slide" data-title="Constraints" data-no-image>
+      <div class="slide-content">
+        <div class="section-head">
+          <span class="eyebrow reveal stagger" style="--i: 0">
+            What still has to be solved
+          </span>
+          <h2 class="reveal stagger" style="--i: 1">
+            Caution is <em>appropriate</em>, not obstructionist.
+          </h2>
+        </div>
+        <div class="four-up">
+          <div class="card reveal stagger" style="--i: 2">
+            <span class="card-eyebrow">Constraint 01</span>
+            <h3>Data quality</h3>
+            <p>
+              Domain datasets are small, heterogeneous, and historically biased.
+            </p>
+          </div>
+          <div class="card reveal stagger" style="--i: 3">
+            <span class="card-eyebrow">Constraint 02</span>
+            <h3>Validation gaps</h3>
+            <p>Few prospective studies; most evidence is retrospective.</p>
+          </div>
+          <div class="card reveal stagger" style="--i: 4">
+            <span class="card-eyebrow">Constraint 03</span>
+            <h3>Interpretability</h3>
+            <p>Explainable AI remains a regulatory expectation.</p>
+          </div>
+          <div class="card reveal stagger" style="--i: 5">
+            <span class="card-eyebrow">Constraint 04</span>
+            <h3>Implementation</h3>
+            <p>
+              Workflow integration and governance lag behind technical
+              capability.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 10 — Closing (medium → contextual)
+         ============================================ -->
+    <section
+      class="slide"
+      data-title="Future"
+      data-image-prompt="forward-looking abstract horizon at twilight, single accent color, cinematic minimal"
+    >
+      <div class="slide-content closing">
+        <div class="section-head" style="margin-bottom: 0">
+          <span class="eyebrow reveal stagger" style="--i: 0"
+            >Future directions</span
+          >
+        </div>
+        <div class="three-up">
+          <div class="card reveal stagger" style="--i: 1">
+            <span class="card-eyebrow">Direction 01</span>
+            <h3>Multimodal models</h3>
+            <p>Joint reasoning across heterogeneous inputs.</p>
+          </div>
+          <div class="card reveal stagger" style="--i: 2">
+            <span class="card-eyebrow">Direction 02</span>
+            <h3>Federated learning</h3>
+            <p>Cross-org model training without sharing raw data.</p>
+          </div>
+          <div class="card reveal stagger" style="--i: 3">
+            <span class="card-eyebrow">Direction 03</span>
+            <h3>Embedded AI</h3>
+            <p>AI integrated with physical/microphysiological systems.</p>
+          </div>
+        </div>
+        <div
+          class="closing-quote reveal stagger"
+          style="
+            --i: 4;
+            margin-top: auto;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--line);
+          "
+        >
+          A <span class="accent">supportive computational tool</span> — not a
+          replacement for judgment.
+        </div>
+        <div class="closing-attr reveal stagger" style="--i: 5">
+          — Source · Year
+        </div>
+      
+        <aside class="slide-image"><img src="images/future.png" alt="" aria-hidden="true"></aside>
+</div>
+    </section>
+
+    <script>
+      class SlidePresentation {
+        constructor() {
+          this.slides = Array.from(document.querySelectorAll(".slide"));
+          this.current = 0;
+          this.progressEl = document.querySelector(".progress-bar");
+          this.navDotsEl = document.querySelector(".nav-dots");
+          this.setupNavDots();
+          this.setupIntersectionObserver();
+          this.setupKeyboardNav();
+          this.setupScrollProgress();
+        }
+        setupIntersectionObserver() {
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((e) => {
+                if (e.isIntersecting && e.intersectionRatio > 0.55) {
+                  e.target.classList.add("visible");
+                  const idx = this.slides.indexOf(e.target);
+                  if (idx !== -1) this.setActive(idx);
+                }
+              });
+            },
+            { threshold: [0, 0.55, 1] },
+          );
+          this.slides.forEach((s) => observer.observe(s));
+        }
+        setupNavDots() {
+          this.navDotsEl.replaceChildren();
+          this.slides.forEach((slide, i) => {
+            const btn = document.createElement("button");
+            btn.setAttribute(
+              "aria-label",
+              `Go to slide ${i + 1}: ${slide.dataset.title || ""}`,
+            );
+            btn.addEventListener("click", () =>
+              slide.scrollIntoView({ behavior: "smooth" }),
+            );
+            this.navDotsEl.appendChild(btn);
+          });
+        }
+        setActive(idx) {
+          if (idx === this.current) return;
+          this.current = idx;
+          const dots = this.navDotsEl.querySelectorAll("button");
+          dots.forEach((d, i) => d.classList.toggle("active", i === idx));
+        }
+        setupKeyboardNav() {
+          document.addEventListener("keydown", (e) => {
+            if (["ArrowDown", "ArrowRight", " ", "PageDown"].includes(e.key)) {
+              e.preventDefault();
+              this.go(this.current + 1);
+            } else if (["ArrowUp", "ArrowLeft", "PageUp"].includes(e.key)) {
+              e.preventDefault();
+              this.go(this.current - 1);
+            }
+          });
+        }
+        go(idx) {
+          const c = Math.max(0, Math.min(this.slides.length - 1, idx));
+          this.slides[c].scrollIntoView({ behavior: "smooth" });
+        }
+        setupScrollProgress() {
+          const update = () => {
+            const t =
+              document.documentElement.scrollHeight - window.innerHeight;
+            this.progressEl.style.width =
+              (t > 0 ? (window.scrollY / t) * 100 : 0) + "%";
+          };
+          window.addEventListener("scroll", update, { passive: true });
+          window.addEventListener("resize", update);
+          update();
+        }
+      }
+      if (document.readyState === "loading") {
+        document.addEventListener(
+          "DOMContentLoaded",
+          () => new SlidePresentation(),
+        );
+      } else {
+        new SlidePresentation();
+      }
+      window.addEventListener("load", () => {
+        document.querySelector(".slide")?.classList.add("visible");
+      });
+    </script>
+  </body>
+</html>

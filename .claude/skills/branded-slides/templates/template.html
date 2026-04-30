@@ -1,0 +1,966 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><!-- DECK-TITLE --></title>
+
+    <!-- Brand fonts: Space Grotesk (display) + Inter (body) + JetBrains Mono (data) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* ===========================================
+         BRAND TOKENS (palette-mode-independent)
+         These tokens stay constant regardless of light/dark.
+         Surface/text/accent variables live below in the
+         body[data-palette="..."] selectors.
+         =========================================== */
+      :root {
+        /* Typography */
+        --font-display: "Space Grotesk", system-ui, sans-serif;
+        --font-body: "Inter", system-ui, sans-serif;
+        --font-mono: "JetBrains Mono", "Menlo", monospace;
+
+        --title-size: clamp(2.4rem, 7vw, 6rem);
+        --h2-size: clamp(1.9rem, 4.5vw, 3.6rem);
+        --h3-size: clamp(1.25rem, 2.6vw, 1.9rem);
+        --body-size: clamp(1.1rem, 1.7vw, 1.4rem);
+        --small-size: clamp(0.95rem, 1.35vw, 1.2rem);
+        --eyebrow-size: clamp(0.78rem, 1vw, 0.95rem);
+
+        /* Spacing */
+        --slide-padding: clamp(1.5rem, 4vw, 4rem);
+        --content-gap: clamp(0.85rem, 2.2vw, 2.4rem);
+        --element-gap: clamp(0.5rem, 1.1vw, 1.1rem);
+
+        /* Motion */
+        --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        --duration-slow: 1s;
+        --duration-norm: 0.7s;
+      }
+
+      /* ===========================================
+         PALETTE MODES
+         Switch by setting <body data-palette="...">
+         =========================================== */
+      body[data-palette="light-clinical"] {
+        --bg-primary: #fafafa;
+        --bg-elevated: #ffffff;
+        --bg-surface: #f1f5f9;
+        --line: rgba(15, 23, 42, 0.08);
+        --line-strong: rgba(15, 23, 42, 0.16);
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #94a3b8;
+        --accent: #2563eb;
+        --accent-strong: #1e40af;
+        --accent-soft: rgba(37, 99, 235, 0.15);
+        --bg-overlay: rgba(255, 255, 255, 0.82); /* over slide-bg images */
+      }
+
+      body[data-palette="dark-minimal"] {
+        --bg-primary: #0a0a0a;
+        --bg-elevated: #141414;
+        --bg-surface: #1c1c1c;
+        --line: rgba(255, 255, 255, 0.08);
+        --line-strong: rgba(255, 255, 255, 0.16);
+        --text-primary: #ffffff;
+        --text-secondary: #b8b8b8;
+        --text-muted: #6a6a6a;
+        --accent: #ef4444;
+        --accent-strong: #dc2626;
+        --accent-soft: rgba(239, 68, 68, 0.15);
+        --bg-overlay: rgba(10, 10, 10, 0.72);
+      }
+
+      /* Legacy variable aliases (BRAND.md). Keep these so reskinning
+         to new accent colors is one variable change. */
+      body {
+        --accent-warm: var(--accent);
+        --accent-pink: var(--accent);
+        --accent-gold: var(--accent);
+        --accent-leaf: var(--accent);
+      }
+
+      /* ===========================================
+         VIEWPORT BASE (mandatory)
+         =========================================== */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        overflow-x: hidden;
+      }
+      html {
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: var(--font-body);
+        font-weight: 400;
+        color: var(--text-primary);
+        background: var(--bg-primary);
+        -webkit-font-smoothing: antialiased;
+        letter-spacing: 0;
+      }
+
+      .slide {
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+        scroll-snap-align: start;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        isolation: isolate;
+      }
+
+      .slide-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-height: 100%;
+        overflow: hidden;
+        padding: var(--slide-padding);
+        position: relative;
+        z-index: 2;
+      }
+
+      /* Responsive scaling for short viewports. Body sizes stay legible. */
+      @media (max-height: 700px) {
+        :root {
+          --slide-padding: clamp(0.75rem, 3vw, 2.5rem);
+          --content-gap: clamp(0.5rem, 1.7vw, 1.2rem);
+          --title-size: clamp(1.7rem, 5.4vw, 3.6rem);
+          --h2-size: clamp(1.4rem, 3.6vw, 2.4rem);
+          --body-size: clamp(1rem, 1.5vw, 1.2rem);
+          --small-size: clamp(0.9rem, 1.2vw, 1.05rem);
+        }
+      }
+      @media (max-height: 600px) {
+        :root {
+          --slide-padding: clamp(0.5rem, 2.5vw, 1.75rem);
+          --title-size: clamp(1.3rem, 4.6vw, 2.6rem);
+          --h2-size: clamp(1.2rem, 3vw, 2rem);
+          --body-size: clamp(0.9rem, 1.3vw, 1.05rem);
+          --small-size: clamp(0.85rem, 1.1vw, 0.95rem);
+        }
+        .nav-dots,
+        .decorative {
+          display: none;
+        }
+      }
+      @media (max-height: 500px) {
+        :root {
+          --title-size: clamp(1.15rem, 4vw, 1.9rem);
+          --body-size: clamp(0.8rem, 1.1vw, 0.95rem);
+        }
+      }
+      @media (max-width: 600px) {
+        :root {
+          --title-size: clamp(1.4rem, 7.5vw, 2.6rem);
+        }
+        .three-up,
+        .four-up {
+          grid-template-columns: 1fr !important;
+          grid-template-rows: auto !important;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.2s !important;
+        }
+        html {
+          scroll-behavior: auto;
+        }
+      }
+
+      /* ===========================================
+         TYPOGRAPHY
+         =========================================== */
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        line-height: 1.1;
+        letter-spacing: -0.025em;
+      }
+      h1 {
+        font-size: var(--title-size);
+        color: var(--text-primary);
+      }
+      h2 {
+        font-size: var(--h2-size);
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+      h3 {
+        font-size: var(--h3-size);
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+      /* Inline emphasis: solid accent + weight 600. NO italic. */
+      em {
+        font-style: normal;
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      .eyebrow {
+        font-family: var(--font-mono);
+        font-weight: 500;
+        font-size: var(--eyebrow-size);
+        color: var(--accent);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+      .underline {
+        text-decoration: underline;
+        text-decoration-color: var(--accent);
+        text-underline-offset: 4px;
+        text-decoration-thickness: 1px;
+      }
+
+      p {
+        font-size: var(--body-size);
+        color: var(--text-secondary);
+        line-height: 1.6;
+        font-weight: 400;
+      }
+      .lede {
+        color: var(--text-primary);
+        font-weight: 400;
+      }
+      .small {
+        font-size: var(--small-size);
+        color: var(--text-muted);
+      }
+
+      /* ===========================================
+         REVEAL ANIMATION
+         Class .reveal + .stagger; index via inline style="--i: N"
+         =========================================== */
+      .reveal {
+        opacity: 0;
+        transform: translateY(28px);
+        transition:
+          opacity var(--duration-norm) var(--ease-out-expo),
+          transform var(--duration-norm) var(--ease-out-expo);
+        will-change: opacity, transform;
+      }
+      .slide.visible .reveal {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .stagger {
+        transition-delay: calc(var(--i, 0) * 0.08s + 0.1s);
+      }
+
+      /* ===========================================
+         PROGRESS BAR + NAV DOTS (functional nav only)
+         =========================================== */
+      .progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 2px;
+        width: 0%;
+        background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+        z-index: 100;
+        transition: width 0.18s ease-out;
+      }
+      .nav-dots {
+        position: fixed;
+        right: clamp(0.6rem, 1.5vw, 1.2rem);
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 90;
+      }
+      .nav-dots button {
+        width: 9px;
+        height: 9px;
+        border: 1px solid var(--line-strong);
+        border-radius: 50%;
+        background: transparent;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        padding: 0;
+      }
+      .nav-dots button:hover {
+        border-color: var(--accent);
+      }
+      .nav-dots button.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        transform: scale(1.25);
+      }
+
+      /* ===========================================
+         IMAGE ROLES (T-08 — slide-bg + slide-image)
+         Generated by scripts/generate_images.sh + injected by inject_images.py.
+         Both roles degrade gracefully when img has no src.
+         =========================================== */
+
+      /* Full-bleed background: image fills slide; content overlays
+         with a palette-aware translucent surface for legibility. */
+      .slide-bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 0;
+        opacity: 1;
+      }
+      .slide-bg:not([src]),
+      .slide-bg[src=""] {
+        display: none; /* hide broken-image icon when no src */
+      }
+      /* Translucent overlay between bg image and content so text remains readable. */
+      .slide:has(.slide-bg)::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: var(--bg-overlay);
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      /* Contextual side image: absolute-positioned on the right so the
+         existing content children (section-head, three-up, row-list, etc.)
+         keep their natural vertical-stack layout. The slide-content gets
+         right-padding bumped to leave room for the image. */
+      .slide:has(.slide-image) .slide-content {
+        padding-right: calc(var(--slide-padding) + 38% + 1.5rem);
+      }
+      .slide-image {
+        position: absolute;
+        right: var(--slide-padding);
+        top: 50%;
+        transform: translateY(-50%);
+        width: 38%;
+        max-width: 540px;
+        max-height: min(70vh, 600px);
+        aspect-ratio: 4 / 5;
+        border-radius: clamp(8px, 1vw, 14px);
+        overflow: hidden;
+        background: var(--bg-elevated);
+        border: 1px solid var(--line);
+        z-index: 1;
+      }
+      .slide-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .slide-image:not(:has(img[src])) {
+        display: none;
+      }
+      /* On narrow viewports, drop back to vertical layout: image stacks below content. */
+      @media (max-width: 800px) {
+        .slide:has(.slide-image) .slide-content {
+          padding-right: var(--slide-padding);
+        }
+        .slide-image {
+          position: static;
+          transform: none;
+          width: 100%;
+          max-width: 100%;
+          margin-top: clamp(1rem, 2vh, 1.5rem);
+          aspect-ratio: 16 / 9;
+          max-height: 35vh;
+        }
+      }
+
+      /* ===========================================
+         LAYOUT COMPONENTS
+         =========================================== */
+      .section-head {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(0.4rem, 1vh, 0.8rem);
+        margin-bottom: clamp(1rem, 3vh, 2.2rem);
+      }
+      .section-head h2 {
+        max-width: min(90vw, 950px);
+      }
+
+      .three-up {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: clamp(0.75rem, 1.5vw, 1.5rem);
+      }
+      .four-up {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: clamp(0.75rem, 1.5vw, 1.25rem);
+      }
+
+      .card {
+        background: var(--bg-elevated);
+        border: 1px solid var(--line);
+        border-radius: clamp(10px, 1.1vw, 16px);
+        padding: clamp(1.25rem, 2.2vw, 2.2rem);
+        display: flex;
+        flex-direction: column;
+        gap: clamp(0.6rem, 1.2vw, 1.2rem);
+        position: relative;
+        overflow: hidden;
+        transition:
+          border-color 0.3s ease,
+          transform 0.3s ease;
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: clamp(36px, 5vw, 56px);
+        height: 2px;
+        background: var(--accent);
+      }
+      .card:hover {
+        border-color: var(--line-strong);
+        transform: translateY(-3px);
+      }
+      .card .card-eyebrow {
+        font-family: var(--font-mono);
+        font-size: var(--eyebrow-size);
+        color: var(--accent);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        font-weight: 500;
+      }
+      .card h3 {
+        font-size: var(--h3-size);
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+      .card h3 em {
+        color: var(--accent);
+        font-style: normal;
+        font-weight: 600;
+      }
+      .card p {
+        font-size: var(--body-size);
+        color: var(--text-secondary);
+        line-height: 1.55;
+      }
+      .card .cite {
+        font-family: var(--font-mono);
+        font-size: clamp(0.78rem, 1vw, 0.95rem);
+        color: var(--text-muted);
+        margin-top: auto;
+        letter-spacing: 0.05em;
+      }
+
+      .row-list {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(0.4rem, 1vh, 0.8rem);
+      }
+      .row {
+        display: grid;
+        grid-template-columns: clamp(44px, 5.5vw, 64px) 1fr auto;
+        align-items: center;
+        gap: clamp(0.85rem, 1.7vw, 1.5rem);
+        padding: clamp(1rem, 1.8vw, 1.6rem) clamp(1.1rem, 1.9vw, 1.7rem);
+        background: var(--bg-elevated);
+        border: 1px solid var(--line);
+        border-radius: clamp(10px, 1.1vw, 14px);
+        transition:
+          border-color 0.25s ease,
+          background 0.25s ease;
+      }
+      .row:hover {
+        border-color: var(--accent);
+        background: var(--bg-surface);
+      }
+      .row-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: var(--accent-soft);
+        border: 1px solid var(--line-strong);
+        color: var(
+          --accent
+        ); /* drives child SVGs using stroke="currentColor" */
+      }
+      .row-title {
+        font-family: var(--font-display);
+        font-size: var(--h3-size);
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .row-desc {
+        font-size: var(--body-size);
+        color: var(--text-secondary);
+        line-height: 1.55;
+      }
+      .row-cite {
+        font-family: var(--font-mono);
+        font-size: clamp(0.78rem, 1vw, 0.95rem);
+        color: var(--text-muted);
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+      }
+
+      /* Pull-quote / big-stat slide */
+      .pull-quote {
+        max-width: min(95vw, 1200px);
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: clamp(2rem, 5.2vw, 4.2rem);
+        line-height: 1.15;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+      }
+      .pull-quote em {
+        font-style: normal;
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .pull-quote .highlight {
+        background: var(--accent-soft);
+        padding: 0 0.15em;
+        border-radius: 2px;
+      }
+
+      /* Stat row */
+      .stat-row {
+        display: flex;
+        gap: clamp(2rem, 5vw, 4rem);
+        margin-top: clamp(1rem, 3vh, 2rem);
+      }
+      .stat {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(0.2rem, 0.6vh, 0.5rem);
+      }
+      .stat-num {
+        font-family: var(--font-display);
+        font-size: clamp(2.6rem, 7vw, 5.2rem);
+        font-weight: 700;
+        color: var(--accent);
+        line-height: 1;
+        letter-spacing: -0.025em;
+      }
+      .stat-num em {
+        font-style: normal;
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .stat-label {
+        font-family: var(--font-mono);
+        font-size: var(--eyebrow-size);
+        color: var(--text-muted);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+      }
+      .stat-desc {
+        font-size: var(--small-size);
+        color: var(--text-secondary);
+        max-width: 32ch;
+      }
+
+      /* Survey ring chart (donut) */
+      .survey-block {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: clamp(2rem, 5vw, 4rem);
+        align-items: center;
+      }
+      .ring {
+        width: clamp(180px, 26vw, 280px);
+        height: clamp(180px, 26vw, 280px);
+        position: relative;
+      }
+      .ring svg {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+      }
+      .ring-bg {
+        stroke: var(--line-strong);
+      }
+      .ring-fg {
+        stroke: var(--accent);
+        stroke-linecap: round;
+        stroke-dasharray: 502.65; /* 2π × 80 */
+        stroke-dashoffset: 502.65; /* hidden initially; component animates on .visible */
+        transition: stroke-dashoffset 1.6s var(--ease-out-expo) 0.3s;
+      }
+      .ring-center {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .ring-num {
+        font-family: var(--font-display);
+        font-size: clamp(2.4rem, 6vw, 4rem);
+        font-style: normal;
+        color: var(--accent);
+        line-height: 1;
+        font-weight: 700;
+      }
+      .ring-label {
+        font-family: var(--font-mono);
+        font-size: clamp(0.7rem, 0.85vw, 0.85rem);
+        color: var(--text-muted);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-top: 8px;
+        max-width: 70%;
+        line-height: 1.35;
+        text-align: center;
+      }
+      .survey-meta {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(0.6rem, 1.4vh, 1rem);
+      }
+      .survey-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 1.5rem;
+        padding: clamp(0.6rem, 1.2vw, 0.95rem) clamp(0.85rem, 1.4vw, 1.2rem);
+        background: var(--bg-elevated);
+        border: 1px solid var(--line);
+        border-radius: clamp(7px, 0.8vw, 10px);
+        font-size: var(--small-size);
+      }
+      .survey-line.featured {
+        border-color: var(--accent);
+      }
+      .survey-line .label {
+        color: var(--text-secondary);
+      }
+      .survey-line .value {
+        font-family: var(--font-mono);
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        font-weight: 500;
+      }
+
+      /* Vertical timeline */
+      .timeline {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: clamp(0.4rem, 1vw, 1rem);
+        max-width: min(95vw, 1000px);
+      }
+      .timeline-track {
+        width: 1px;
+        background: linear-gradient(
+          180deg,
+          var(--accent) 0%,
+          var(--accent-strong) 50%,
+          var(--line) 100%
+        );
+        justify-self: center;
+        position: relative;
+      }
+      .timeline-items {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(0.5rem, 1.6vh, 1.2rem);
+      }
+      .t-item {
+        position: relative;
+        padding: clamp(0.5rem, 1vw, 0.8rem) 0 clamp(0.5rem, 1vw, 0.8rem)
+          clamp(1rem, 2vw, 1.6rem);
+      }
+      .t-item::before {
+        content: "";
+        position: absolute;
+        left: calc(-1 * clamp(0.4rem, 0.8vw, 0.6rem));
+        top: clamp(0.7rem, 1.5vw, 1.1rem);
+        width: clamp(8px, 1vw, 12px);
+        height: clamp(8px, 1vw, 12px);
+        border-radius: 50%;
+        background: var(--bg-primary);
+        border: 1.5px solid var(--accent);
+      }
+      .t-item.featured::before {
+        background: var(--accent);
+      }
+      .t-date {
+        font-family: var(--font-mono);
+        font-size: var(--eyebrow-size);
+        color: var(--accent);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+      .t-title {
+        font-family: var(--font-display);
+        font-size: var(--h3-size);
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .t-title em {
+        color: var(--accent);
+        font-style: normal;
+        font-weight: 600;
+      }
+      .t-desc {
+        font-size: var(--body-size);
+        color: var(--text-secondary);
+        max-width: 80ch;
+        line-height: 1.55;
+      }
+
+      /* Title slide overrides */
+      .title-slide .slide-content {
+        justify-content: center;
+        align-items: flex-start;
+      }
+      .title-slide h1 {
+        font-size: clamp(2.4rem, 7.5vw, 6.5rem);
+        font-weight: 700;
+        max-width: min(90vw, 1100px);
+      }
+      .title-slide h1 em {
+        color: var(--accent);
+        font-style: normal;
+        font-weight: 700;
+      }
+      .title-slide .subtitle {
+        margin-top: clamp(0.75rem, 2vh, 1.5rem);
+        font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+        color: var(--text-secondary);
+        font-weight: 400;
+      }
+      .title-meta {
+        display: grid;
+        grid-template-columns: repeat(3, auto);
+        gap: clamp(1.5rem, 4vw, 3.5rem);
+        margin-top: clamp(2rem, 6vh, 4rem);
+        padding-top: clamp(1rem, 2vh, 1.5rem);
+        border-top: 1px solid var(--line);
+        max-width: min(90vw, 800px);
+      }
+      .title-meta dt {
+        font-family: var(--font-mono);
+        font-size: var(--eyebrow-size);
+        color: var(--accent);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+      .title-meta dd {
+        font-family: var(--font-display);
+        font-size: var(--body-size);
+        color: var(--text-secondary);
+      }
+
+      /* Closing slide */
+      .closing {
+        align-items: flex-start;
+        gap: clamp(1.5rem, 4vh, 3rem);
+      }
+      .closing-quote {
+        max-width: min(95vw, 1200px);
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: clamp(2rem, 5.4vw, 4.4rem);
+        line-height: 1.15;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+      }
+      .closing-quote .accent {
+        color: var(--accent);
+        font-style: normal;
+        font-weight: 700;
+      }
+      .closing-attr {
+        font-family: var(--font-mono);
+        font-size: var(--eyebrow-size);
+        color: var(--text-muted);
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+
+  <!-- DATA-PALETTE: replace with light-clinical or dark-minimal -->
+  <body data-palette="dark-minimal">
+    <!-- Top progress bar (fills as user scrolls). -->
+    <div class="progress-bar"></div>
+
+    <!-- Right-edge nav-dot rail (built by JS). -->
+    <nav class="nav-dots" aria-label="Slide navigation"></nav>
+
+    <!-- SLIDES: replace this comment with the deck's <section class="slide">…</section> elements. -->
+
+    <!-- ===========================================
+         PRESENTATION CONTROLLER
+         Hook-safe (uses replaceChildren — no innerHTML setter).
+         =========================================== -->
+    <script>
+      class SlidePresentation {
+        constructor() {
+          this.slides = Array.from(document.querySelectorAll(".slide"));
+          this.current = 0;
+          this.progressEl = document.querySelector(".progress-bar");
+          this.navDotsEl = document.querySelector(".nav-dots");
+
+          this.setupNavDots();
+          this.setupIntersectionObserver();
+          this.setupKeyboardNav();
+          this.setupTouchNav();
+          this.setupScrollProgress();
+        }
+
+        /* Reveal animations and active-slide tracking via IntersectionObserver. */
+        setupIntersectionObserver() {
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting && entry.intersectionRatio > 0.55) {
+                  entry.target.classList.add("visible");
+                  const idx = this.slides.indexOf(entry.target);
+                  if (idx !== -1) this.setActive(idx);
+                }
+              });
+            },
+            { threshold: [0, 0.55, 1] },
+          );
+          this.slides.forEach((s) => observer.observe(s));
+        }
+
+        /* Right-edge nav dots — clicking jumps to the slide.
+           Always clear before building. If the document was ever serialized
+           (e.g. saved via outerHTML) while dots existed, re-opening would
+           otherwise duplicate them on top of the existing ones. */
+        setupNavDots() {
+          this.navDotsEl.replaceChildren();
+          this.slides.forEach((slide, i) => {
+            const btn = document.createElement("button");
+            btn.setAttribute(
+              "aria-label",
+              `Go to slide ${i + 1}: ${slide.dataset.title || ""}`,
+            );
+            btn.addEventListener("click", () =>
+              slide.scrollIntoView({ behavior: "smooth" }),
+            );
+            this.navDotsEl.appendChild(btn);
+          });
+        }
+
+        setActive(idx) {
+          if (idx === this.current) return;
+          this.current = idx;
+          const dots = this.navDotsEl.querySelectorAll("button");
+          dots.forEach((d, i) => d.classList.toggle("active", i === idx));
+        }
+
+        setupKeyboardNav() {
+          document.addEventListener("keydown", (e) => {
+            if (["ArrowDown", "ArrowRight", " ", "PageDown"].includes(e.key)) {
+              e.preventDefault();
+              this.go(this.current + 1);
+            } else if (["ArrowUp", "ArrowLeft", "PageUp"].includes(e.key)) {
+              e.preventDefault();
+              this.go(this.current - 1);
+            } else if (e.key === "Home") {
+              e.preventDefault();
+              this.go(0);
+            } else if (e.key === "End") {
+              e.preventDefault();
+              this.go(this.slides.length - 1);
+            }
+          });
+        }
+
+        /* Vertical swipe — matches scroll-snap axis. */
+        setupTouchNav() {
+          let startY = null;
+          document.addEventListener(
+            "touchstart",
+            (e) => {
+              startY = e.touches[0].clientY;
+            },
+            { passive: true },
+          );
+          document.addEventListener(
+            "touchend",
+            (e) => {
+              if (startY == null) return;
+              const dy = e.changedTouches[0].clientY - startY;
+              if (Math.abs(dy) > 60) {
+                this.go(this.current + (dy < 0 ? 1 : -1));
+              }
+              startY = null;
+            },
+            { passive: true },
+          );
+        }
+
+        go(idx) {
+          const clamped = Math.max(0, Math.min(this.slides.length - 1, idx));
+          this.slides[clamped].scrollIntoView({ behavior: "smooth" });
+        }
+
+        setupScrollProgress() {
+          const update = () => {
+            const total =
+              document.documentElement.scrollHeight - window.innerHeight;
+            const pct = total > 0 ? (window.scrollY / total) * 100 : 0;
+            this.progressEl.style.width = pct + "%";
+          };
+          window.addEventListener("scroll", update, { passive: true });
+          window.addEventListener("resize", update);
+          update();
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener(
+          "DOMContentLoaded",
+          () => new SlidePresentation(),
+        );
+      } else {
+        new SlidePresentation();
+      }
+
+      /* Reveal first slide immediately so it's visible even if
+         IntersectionObserver hasn't fired yet. */
+      window.addEventListener("load", () => {
+        document.querySelector(".slide")?.classList.add("visible");
+      });
+    </script>
+  </body>
+</html>
