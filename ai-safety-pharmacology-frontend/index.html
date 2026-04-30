@@ -1,0 +1,1962 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      The Emerging Use of AI in Safety Pharmacology & Toxicology — Miller et
+      al., 2026
+    </title>
+
+    <!-- Space Grotesk (display) + Inter (body) + JetBrains Mono (data labels) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* ===========================================
+       THEME — Dark · Minimal
+       Solid near-black background, white text, single red accent.
+       (Legacy --accent-warm/pink/gold/leaf names alias to --accent so all
+       existing rules keep working without per-rule edits.)
+       =========================================== */
+      :root {
+        /* Surfaces */
+        --bg-primary: #0a0a0a; /* near-black */
+        --bg-elevated: #141414; /* card surface */
+        --bg-surface: #1c1c1c;
+        --line: rgba(255, 255, 255, 0.08);
+        --line-strong: rgba(255, 255, 255, 0.16);
+
+        /* Text */
+        --text-primary: #ffffff;
+        --text-secondary: #b8b8b8;
+        --text-muted: #6a6a6a;
+
+        /* Accent — vivid red matching the reference */
+        --accent: #ef4444;
+        --accent-strong: #dc2626;
+        --accent-soft: rgba(239, 68, 68, 0.15);
+        --accent-warm: var(--accent);
+        --accent-pink: var(--accent);
+        --accent-gold: var(--accent);
+        --accent-leaf: var(--accent);
+
+        /* Orbs are hidden in this theme — variables kept for compatibility */
+        --orb-1: transparent;
+        --orb-2: transparent;
+        --orb-3: transparent;
+
+        /* Typography */
+        --font-display: "Space Grotesk", system-ui, sans-serif;
+        --font-body: "Inter", system-ui, sans-serif;
+        --font-mono: "JetBrains Mono", "Menlo", monospace;
+
+        --title-size: clamp(2.4rem, 7vw, 6rem);
+        --h2-size: clamp(1.9rem, 4.5vw, 3.6rem);
+        --h3-size: clamp(1.25rem, 2.6vw, 1.9rem);
+        --body-size: clamp(1.1rem, 1.7vw, 1.4rem);
+        --small-size: clamp(0.95rem, 1.35vw, 1.2rem);
+        --eyebrow-size: clamp(0.78rem, 1vw, 0.95rem);
+
+        /* Spacing — tighter outer padding so content fills more of each slide */
+        --slide-padding: clamp(1.5rem, 4vw, 4rem);
+        --content-gap: clamp(0.85rem, 2.2vw, 2.4rem);
+        --element-gap: clamp(0.5rem, 1.1vw, 1.1rem);
+
+        /* Motion */
+        --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        --duration-slow: 1s;
+        --duration-norm: 0.7s;
+      }
+
+      /* ===========================================
+       VIEWPORT BASE (mandatory — from skill)
+       =========================================== */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        overflow-x: hidden;
+      }
+      html {
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: var(--font-body);
+        font-weight: 400;
+        color: var(--text-primary);
+        background: var(--bg-primary);
+        -webkit-font-smoothing: antialiased;
+        letter-spacing: 0;
+      }
+
+      .slide {
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+        scroll-snap-align: start;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        isolation: isolate;
+      }
+
+      .slide-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-height: 100%;
+        overflow: hidden;
+        padding: var(--slide-padding);
+        position: relative;
+        z-index: 2;
+      }
+
+      @media (max-height: 700px) {
+        :root {
+          --slide-padding: clamp(0.75rem, 3vw, 2.5rem);
+          --content-gap: clamp(0.5rem, 1.7vw, 1.2rem);
+          --title-size: clamp(1.7rem, 5.4vw, 3.6rem);
+          --h2-size: clamp(1.4rem, 3.6vw, 2.4rem);
+          --body-size: clamp(1rem, 1.5vw, 1.2rem);
+          --small-size: clamp(0.9rem, 1.2vw, 1.05rem);
+        }
+      }
+      @media (max-height: 600px) {
+        :root {
+          --slide-padding: clamp(0.5rem, 2.5vw, 1.75rem);
+          --title-size: clamp(1.3rem, 4.6vw, 2.6rem);
+          --h2-size: clamp(1.2rem, 3vw, 2rem);
+          --body-size: clamp(0.9rem, 1.3vw, 1.05rem);
+          --small-size: clamp(0.85rem, 1.1vw, 0.95rem);
+        }
+        .nav-dots,
+        .decorative {
+          display: none;
+        }
+      }
+      @media (max-height: 500px) {
+        :root {
+          --title-size: clamp(1.15rem, 4vw, 1.9rem);
+          --body-size: clamp(0.8rem, 1.1vw, 0.95rem);
+        }
+      }
+      @media (max-width: 600px) {
+        :root {
+          --title-size: clamp(1.4rem, 7.5vw, 2.6rem);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.2s !important;
+        }
+        html {
+          scroll-behavior: auto;
+        }
+        .orb {
+          display: none;
+        }
+      }
+
+      /* ===========================================
+       BACKGROUND DECORATIONS
+       Orb-glow + grain stay suppressed — the brief is a clean,
+       minimal dark surface, not the original Dark Botanical mood.
+       =========================================== */
+      .orb-layer,
+      .orb,
+      .grain {
+        display: none !important;
+      }
+
+      /* ===========================================
+       TYPOGRAPHY
+       Space Grotesk is a sans, not a serif — emphasis is now
+       carried by COLOR + WEIGHT rather than the prior italic flourish.
+       =========================================== */
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        line-height: 1.1;
+        letter-spacing: -0.025em;
+      }
+      h1 {
+        font-size: var(--title-size);
+        color: var(--text-primary);
+      }
+      h2 {
+        font-size: var(--h2-size);
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+      h3 {
+        font-size: var(--h3-size);
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+      /* Inline emphasis — solid blue, no italic. The "italic" flourish
+         from the previous theme reads as design-y in a clinical context. */
+      em {
+        font-style: normal;
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      .eyebrow {
+        font-family: var(--font-mono);
+        font-weight: 500;
+        font-size: var(--eyebrow-size);
+        color: var(--accent);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+      .italic {
+        font-style: normal;
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .underline {
+        text-decoration: underline;
+        text-decoration-color: var(--accent);
+        text-underline-offset: 4px;
+        text-decoration-thickness: 1px;
+      }
+
+      p {
+        font-size: var(--body-size);
+        color: var(--text-secondary);
+        line-height: 1.6;
+        font-weight: 400;
+      }
+      .lede {
+        color: var(--text-primary);
+        font-weight: 400;
+      }
+      .small {
+        font-size: var(--small-size);
+        color: var(--text-muted);
+      }
+
+      /* ===========================================
+       REVEAL ANIMATION
+       Items fade & slide up when slide becomes visible
+       =========================================== */
+      .reveal {
+        opacity: 0;
+        transform: translateY(28px);
+        transition:
+          opacity var(--duration-norm) var(--ease-out-expo),
+          transform var(--duration-norm) var(--ease-out-expo);
+        will-change: opacity, transform;
+      }
+      .slide.visible .reveal {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* Stagger via inline style="--i: N" — clearer than nth-child chains */
+      .stagger {
+        transition-delay: calc(var(--i, 0) * 0.08s + 0.1s);
+      }
+
+      /* ===========================================
+       SLIDE FRAME (number + brand)
+       Hidden in this theme: the right-edge nav dots and top progress bar
+       already communicate slide position, and the section-head eyebrow
+       carries the section name — the frame becomes redundant noise that
+       only competes with the eyebrow for the same top-left coordinates.
+       Kept in markup so the structure stays uniform across themes; just
+       not rendered.
+       =========================================== */
+      .slide-frame {
+        display: none;
+      }
+      .slide-frame__legacy {
+        position: absolute;
+        inset: 0;
+        padding: var(--slide-padding);
+        pointer-events: none;
+        z-index: 3;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .frame-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: var(--font-mono);
+        font-size: var(--small-size);
+        color: var(--text-muted);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+      .frame-num {
+        font-family: var(--font-display);
+        font-size: clamp(0.95rem, 1.3vw, 1.2rem);
+        font-style: italic;
+        color: var(--accent-warm);
+        letter-spacing: 0;
+        text-transform: none;
+      }
+
+      /* ===========================================
+       PROGRESS BAR + NAV DOTS
+       =========================================== */
+      .progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 2px;
+        width: 0%;
+        background: linear-gradient(
+          90deg,
+          var(--accent-warm),
+          var(--accent-pink)
+        );
+        z-index: 100;
+        transition: width 0.18s ease-out;
+      }
+      .nav-dots {
+        position: fixed;
+        right: clamp(0.6rem, 1.5vw, 1.2rem);
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 90;
+      }
+      .nav-dots button {
+        width: 9px;
+        height: 9px;
+        border: 1px solid var(--line-strong);
+        border-radius: 50%;
+        background: transparent;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        padding: 0;
+      }
+      .nav-dots button:hover {
+        border-color: var(--accent-warm);
+      }
+      .nav-dots button.active {
+        background: var(--accent-warm);
+        border-color: var(--accent-warm);
+        transform: scale(1.25);
+      }
+      /* ===========================================
+       LAYOUTS
+       =========================================== */
+
+      /* --- Title slide --- */
+      .title-slide .slide-content {
+        justify-content: center;
+        align-items: flex-start;
+      }
+      .title-slide .eyebrow {
+        margin-bottom: clamp(1rem, 3vh, 2rem);
+      }
+      .title-slide h1 {
+        font-size: clamp(2.4rem, 7.5vw, 6.5rem);
+        font-weight: 700;
+        max-width: min(90vw, 1100px);
+      }
+      .title-slide h1 em {
+        color: var(--accent);
+        font-style: normal;
+        font-weight: 700;
+      }
+      .title-slide .subtitle {
+        margin-top: clamp(0.75rem, 2vh, 1.5rem);
+        font-family: var(--font-body);
+        font-style: normal;
+        font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+        color: var(--text-secondary);
+        font-weight: 400;
+      }
+      .title-meta {
+        display: grid;
+        grid-template-columns: repeat(3, auto);
+        gap: clamp(1.5rem, 4vw, 3.5rem);
+        margin-top: clamp(2rem, 6vh, 4rem);
+        padding-top: clamp(1rem, 2vh, 1.5rem);
+        border-top: 1px solid var(--line);
+        max-width: min(90vw, 800px);
+      }
+      .title-meta dt {
+        font-family: var(--font-mono);
+        font-size: var(--eyebrow-size);
+        color: var(--accent-warm);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+      .title-meta dd {
+        font-family: var(--font-display);
+        font-size: var(--body-size);
+        color: var(--text-secondary);
+      }
+
+      /* --- Section header (used on most slides) --- */
+      .section-head {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(0.4rem, 1vh, 0.8rem);
+        margin-bottom: clamp(1rem, 3vh, 2.2rem);
+      }
+      .section-head h2 {
+        max-width: min(90vw, 950px);
+      }
+
+      /* --- Three-up grid for cards --- */
+      .three-up {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: clamp(0.75rem, 1.5vw, 1.5rem);
+      }
+      .four-up {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: clamp(0.75rem, 1.5vw, 1.25rem);
+      }
+      @media (max-width: 700px) {
+        .three-up,
+        .four-up {
+          grid-template-columns: 1fr;
+          grid-template-rows: auto;
+        }
+      }
+
+      .card {
+        background: var(--bg-elevated);
+        border: 1px solid var(--line);
+        border-radius: clamp(10px, 1.1vw, 16px);
+        padding: clamp(1.25rem, 2.2vw, 2.2rem);
+        display: flex;
+        flex-direction: column;
+        gap: clamp(0.6rem, 1.2vw, 1.2rem);
+        position: relative;
+        overflow: hidden;
+        transition:
+          border-color 0.3s ease,
+          transform 0.3s ease;
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: clamp(36px, 5vw, 56px);
+        height: 2px;
+        background: var(--accent);
+      }
+      .card:hover {
+        border-color: var(--line-strong);
+        transform: translateY(-3px);
+      }
+      .card .card-eyebrow {
+        font-family: var(--font-mono);
+        font-size: var(--eyebrow-size);
+        color: var(--accent);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        font-weight: 500;
+      }
+      .card h3 {
+        font-size: var(--h3-size);
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+      .card h3 em {
+        color: var(--accent);
+        font-style: normal;
+        font-weight: 600;
+      }
+      .card p {
+        font-size: var(--body-size);
+        color: var(--text-secondary);
+        line-height: 1.55;
+      }
+      .card .cite {
+        font-family: var(--font-mono);
+        font-size: clamp(0.78rem, 1vw, 0.95rem);
+        color: var(--text-muted);
+        margin-top: auto;
+        letter-spacing: 0.05em;
+      }
+
+      /* --- Inline list of rows --- */
+      .row-list {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(0.4rem, 1vh, 0.8rem);
+      }
+      .row {
+        display: grid;
+        grid-template-columns: clamp(44px, 5.5vw, 64px) 1fr auto;
+        align-items: center;
+        gap: clamp(0.85rem, 1.7vw, 1.5rem);
+        padding: clamp(1rem, 1.8vw, 1.6rem) clamp(1.1rem, 1.9vw, 1.7rem);
+        background: var(--bg-elevated);
+        border: 1px solid var(--line);
+        border-radius: clamp(10px, 1.1vw, 14px);
+        transition:
+          border-color 0.25s ease,
+          background 0.25s ease;
+      }
+      .row:hover {
+        border-color: var(--accent);
+        background: var(--bg-surface);
+      }
+      .row-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: var(--accent-soft);
+        border: 1px solid var(--line-strong);
+        color: var(
+          --accent
+        ); /* drives child SVGs using stroke="currentColor" */
+      }
+      .row-title {
+        font-family: var(--font-display);
+        font-size: var(--h3-size);
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .row-desc {
+        font-size: var(--body-size);
+        color: var(--text-secondary);
+        line-height: 1.55;
+      }
+      .row-cite {
+        font-family: var(--font-mono);
+        font-size: clamp(0.78rem, 1vw, 0.95rem);
+        color: var(--text-muted);
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+      }
+
+      /* --- Big stat / quote slide --- */
+      .pull-quote {
+        max-width: min(95vw, 1200px);
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: clamp(2rem, 5.2vw, 4.2rem);
+        line-height: 1.15;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+      }
+      .pull-quote em {
+        font-style: normal;
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .pull-quote .highlight {
+        background: var(--accent-soft);
+        padding: 0 0.15em;
+        border-radius: 2px;
+      }
+
+      /* --- Stat blocks --- */
+      .stat-row {
+        display: flex;
+        gap: clamp(2rem, 5vw, 4rem);
+        margin-top: clamp(1rem, 3vh, 2rem);
+      }
+      .stat {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(0.2rem, 0.6vh, 0.5rem);
+      }
+      .stat-num {
+        font-family: var(--font-display);
+        font-size: clamp(2.6rem, 7vw, 5.2rem);
+        font-weight: 700;
+        color: var(--accent);
+        line-height: 1;
+        letter-spacing: -0.025em;
+      }
+      .stat-num em {
+        font-style: normal;
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .stat-label {
+        font-family: var(--font-mono);
+        font-size: var(--eyebrow-size);
+        color: var(--text-muted);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+      }
+      .stat-desc {
+        font-size: var(--small-size);
+        color: var(--text-secondary);
+        max-width: 32ch;
+      }
+
+      /* --- Survey ring chart (slide 7) --- */
+      .survey-block {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: clamp(2rem, 5vw, 4rem);
+        align-items: center;
+      }
+      .ring {
+        width: clamp(180px, 26vw, 280px);
+        height: clamp(180px, 26vw, 280px);
+        position: relative;
+      }
+      .ring svg {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+      }
+      .ring-bg {
+        stroke: var(--line-strong);
+      }
+      .ring-fg {
+        stroke: var(--accent-warm);
+        stroke-linecap: round;
+        stroke-dasharray: 502.65; /* 2π × 80 */
+        stroke-dashoffset: 502.65; /* hidden initially */
+        transition: stroke-dashoffset 1.6s var(--ease-out-expo) 0.3s;
+      }
+      .slide.visible .ring-fg {
+        stroke-dashoffset: 243.29;
+      } /* (1 - 46/89) × 502.65 */
+      .ring-center {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .ring-num {
+        font-family: var(--font-display);
+        font-size: clamp(2.4rem, 6vw, 4rem);
+        font-style: normal;
+        color: var(--accent);
+        line-height: 1;
+        font-weight: 700;
+      }
+      .ring-label {
+        font-family: var(--font-mono);
+        font-size: clamp(0.7rem, 0.85vw, 0.85rem);
+        color: var(--text-muted);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-top: 8px;
+        max-width: 70%; /* keep label inside the ring's inner diameter */
+        line-height: 1.35;
+        text-align: center;
+      }
+
+      .survey-meta {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(0.6rem, 1.4vh, 1rem);
+      }
+      .survey-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 1.5rem;
+        padding: clamp(0.6rem, 1.2vw, 0.95rem) clamp(0.85rem, 1.4vw, 1.2rem);
+        background: var(--bg-elevated);
+        border: 1px solid var(--line);
+        border-radius: clamp(7px, 0.8vw, 10px);
+        font-size: var(--small-size);
+      }
+      .survey-line.featured {
+        border-color: var(--accent-warm);
+      }
+      .survey-line .label {
+        color: var(--text-secondary);
+      }
+      .survey-line .value {
+        font-family: var(--font-mono);
+        color: var(--accent-warm);
+        letter-spacing: 0.05em;
+        font-weight: 400;
+      }
+
+      /* --- Timeline (slide 8) --- */
+      .timeline {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: clamp(0.4rem, 1vw, 1rem);
+        max-width: min(95vw, 1000px);
+      }
+      .timeline-track {
+        width: 1px;
+        background: linear-gradient(
+          180deg,
+          var(--accent-warm) 0%,
+          var(--accent-pink) 50%,
+          var(--line) 100%
+        );
+        justify-self: center;
+        position: relative;
+      }
+      .timeline-items {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(0.5rem, 1.6vh, 1.2rem);
+      }
+      .t-item {
+        position: relative;
+        padding: clamp(0.5rem, 1vw, 0.8rem) 0 clamp(0.5rem, 1vw, 0.8rem)
+          clamp(1rem, 2vw, 1.6rem);
+      }
+      .t-item::before {
+        content: "";
+        position: absolute;
+        left: calc(-1 * clamp(0.4rem, 0.8vw, 0.6rem));
+        top: clamp(0.7rem, 1.5vw, 1.1rem);
+        width: clamp(8px, 1vw, 12px);
+        height: clamp(8px, 1vw, 12px);
+        border-radius: 50%;
+        background: var(--bg-primary);
+        border: 1.5px solid var(--accent-warm);
+      }
+      .t-item.featured::before {
+        background: var(--accent-warm);
+      }
+      .t-date {
+        font-family: var(--font-mono);
+        font-size: var(--eyebrow-size);
+        color: var(--accent-warm);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+      .t-title {
+        font-family: var(--font-display);
+        font-size: var(--h3-size);
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .t-title em {
+        color: var(--accent);
+        font-style: normal;
+        font-weight: 600;
+      }
+      .t-desc {
+        font-size: var(--body-size);
+        color: var(--text-secondary);
+        max-width: 80ch;
+        line-height: 1.55;
+      }
+
+      /* --- Closing slide --- */
+      .closing {
+        align-items: flex-start;
+        gap: clamp(1.5rem, 4vh, 3rem);
+      }
+      .closing-quote {
+        max-width: min(95vw, 1200px);
+        font-family: var(--font-display);
+        font-style: normal;
+        font-weight: 600;
+        font-size: clamp(2rem, 5.4vw, 4.4rem);
+        line-height: 1.15;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+      }
+      .closing-quote .accent {
+        color: var(--accent);
+        font-style: normal;
+        font-weight: 700;
+      }
+      .closing-attr {
+        font-family: var(--font-mono);
+        font-size: var(--eyebrow-size);
+        color: var(--text-muted);
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top progress bar -->
+    <div class="progress-bar"></div>
+
+    <!-- Right-edge nav dots (built by JS) -->
+    <nav class="nav-dots" aria-label="Slide navigation"></nav>
+
+    <!-- ============================================================
+       SLIDE 1 — Title
+       ============================================================ -->
+    <section class="slide title-slide" data-title="Title">
+      <div class="orb-layer">
+        <div
+          class="orb"
+          style="
+            width: 60vw;
+            height: 60vw;
+            background: var(--orb-1);
+            top: -20vw;
+            left: -15vw;
+          "
+        ></div>
+        <div
+          class="orb"
+          style="
+            width: 40vw;
+            height: 40vw;
+            background: var(--orb-2);
+            bottom: -10vw;
+            right: -5vw;
+            animation-delay: -8s;
+          "
+        ></div>
+        <div
+          class="orb"
+          style="
+            width: 30vw;
+            height: 30vw;
+            background: var(--orb-3);
+            top: 30%;
+            right: 25%;
+            animation-delay: -14s;
+          "
+        ></div>
+      </div>
+      <div class="grain"></div>
+
+      <div class="slide-content">
+        <div class="eyebrow reveal stagger" style="--i: 0">
+          Review · Safety Pharmacology
+        </div>
+
+        <h1 class="reveal stagger" style="--i: 1">
+          The Emerging Use of <em>AI</em><br />
+          in Safety Pharmacology<br />
+          &amp; Toxicology
+        </h1>
+
+        <p class="subtitle reveal stagger" style="--i: 2">
+          A review of foundations, applications, survey data, &amp; regulation.
+        </p>
+
+        <dl class="title-meta reveal stagger" style="--i: 3">
+          <div>
+            <dt>Authors</dt>
+            <dd>Miller, Treleaven, El Amrani, Rossman, Winters et al.</dd>
+          </div>
+          <div>
+            <dt>Journal</dt>
+            <dd>J. Pharmacol. Toxicol. Methods · 2026</dd>
+          </div>
+          <div>
+            <dt>DOI</dt>
+            <dd>10.1016/j.vascn.2026.108424</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- ============================================================
+       SLIDE 2 — The data problem
+       ============================================================ -->
+    <section class="slide" data-title="The data problem">
+      <div class="orb-layer">
+        <div
+          class="orb"
+          style="
+            width: 45vw;
+            height: 45vw;
+            background: var(--orb-2);
+            top: -12vw;
+            right: -8vw;
+          "
+        ></div>
+        <div
+          class="orb"
+          style="
+            width: 30vw;
+            height: 30vw;
+            background: var(--orb-3);
+            bottom: -6vw;
+            left: -4vw;
+            animation-delay: -10s;
+          "
+        ></div>
+      </div>
+
+      <div class="slide-frame">
+        <div class="frame-row">
+          <span class="frame-num">02</span>
+          <span>The data problem</span>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="slide-content">
+        <div class="section-head">
+          <span class="eyebrow reveal stagger" style="--i: 0"
+            >Why AI · why now</span
+          >
+          <h2 class="reveal stagger" style="--i: 1">
+            Modalities and data sources are
+            <em class="italic">outpacing</em> traditional analysis.
+          </h2>
+        </div>
+
+        <div class="three-up">
+          <div class="card reveal stagger" style="--i: 2">
+            <span class="card-eyebrow">New modalities</span>
+            <h3>Beyond small molecules</h3>
+            <p>
+              Monoclonal antibodies, antibody–drug conjugates, and RNA-based
+              therapeutics each bring distinct safety considerations.
+            </p>
+          </div>
+          <div class="card reveal stagger" style="--i: 3">
+            <span class="card-eyebrow">Heterogeneous data</span>
+            <h3>One compound, many readouts</h3>
+            <p>
+              Chemical structure · in&nbsp;vitro ion-channel and receptor assays
+              · in&nbsp;vivo telemetry · in&nbsp;silico simulations · historical
+              compound databases.
+            </p>
+          </div>
+          <div class="card reveal stagger" style="--i: 4">
+            <span class="card-eyebrow">Decision pressure</span>
+            <h3>Faster <em>go / no-go</em></h3>
+            <p>
+              Patterns across multidimensional data — beyond what
+              single-biomarker thresholds can resolve.
+            </p>
+          </div>
+        </div>
+
+        <div class="stat-row reveal stagger" style="--i: 5">
+          <div class="stat">
+            <span class="stat-num">~63<em>%</em></span>
+            <span class="stat-label">of pharma · 2024 survey</span>
+            <span class="stat-desc"
+              >allocate up to 10% of tech investment to
+              <span class="underline">generative AI</span>.</span
+            >
+          </div>
+          <div class="stat">
+            <span class="stat-num">~24<em>%</em></span>
+            <span class="stat-label">directed toward</span>
+            <span class="stat-desc"
+              >innovation, research &amp; development.</span
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+       SLIDE 3 — AI foundations
+       ============================================================ -->
+    <section class="slide" data-title="AI foundations">
+      <div class="orb-layer">
+        <div
+          class="orb"
+          style="
+            width: 42vw;
+            height: 42vw;
+            background: var(--orb-1);
+            top: 50%;
+            left: -12vw;
+            animation-delay: -4s;
+          "
+        ></div>
+        <div
+          class="orb"
+          style="
+            width: 35vw;
+            height: 35vw;
+            background: var(--orb-3);
+            top: -8vw;
+            right: 10vw;
+            animation-delay: -12s;
+          "
+        ></div>
+      </div>
+
+      <div class="slide-frame">
+        <div class="frame-row">
+          <span class="frame-num">03</span>
+          <span>AI foundations</span>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="slide-content">
+        <div class="section-head">
+          <span class="eyebrow reveal stagger" style="--i: 0"
+            >Foundations · since the 1950s</span
+          >
+          <h2 class="reveal stagger" style="--i: 1">
+            AI is not new — three forces
+            <em class="italic">finally converged</em>.
+          </h2>
+        </div>
+
+        <div class="three-up">
+          <div class="card reveal stagger" style="--i: 2">
+            <span class="card-eyebrow">Force 01 · Compute</span>
+            <h3>GPUs at scale</h3>
+            <p>
+              HPC convergence with NSF cyberinfrastructure makes deep training
+              tractable on the data sizes safety pharmacology produces.
+            </p>
+          </div>
+          <div class="card reveal stagger" style="--i: 3">
+            <span class="card-eyebrow">Force 02 · Data</span>
+            <h3>Vast curated archives</h3>
+            <p>
+              Chemistry libraries, ECG repositories, whole-slide pathology
+              archives — sufficient signal for modern training regimes.
+            </p>
+          </div>
+          <div class="card reveal stagger" style="--i: 4">
+            <span class="card-eyebrow">Force 03 · Algorithms</span>
+            <h3>Deep learning matures</h3>
+            <p>
+              Graph neural networks, transformers, foundation models — newly
+              capable of integrating heterogeneous biomedical signals.
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="reveal stagger"
+          style="
+            --i: 5;
+            margin-top: clamp(1rem, 3vh, 2rem);
+            padding-top: clamp(0.8rem, 1.6vh, 1.2rem);
+            border-top: 1px solid var(--line);
+            display: flex;
+            justify-content: space-between;
+            gap: 2rem;
+            flex-wrap: wrap;
+          "
+        >
+          <span class="small">Stanford AI Lab · 1963</span>
+          <span class="small"
+            >UK Department of Machine Intelligence, Edinburgh · 1966</span
+          >
+          <span class="small italic" style="color: var(--accent-pink)"
+            >— what changed is the convergence above</span
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+       SLIDE 4 — Cardiovascular AI
+       ============================================================ -->
+    <section class="slide" data-title="Cardiovascular AI">
+      <div class="orb-layer">
+        <div
+          class="orb"
+          style="
+            width: 50vw;
+            height: 50vw;
+            background: var(--orb-2);
+            top: -10vw;
+            right: -15vw;
+          "
+        ></div>
+        <div
+          class="orb"
+          style="
+            width: 32vw;
+            height: 32vw;
+            background: var(--orb-1);
+            bottom: -8vw;
+            left: 5vw;
+            animation-delay: -9s;
+          "
+        ></div>
+      </div>
+
+      <div class="slide-frame">
+        <div class="frame-row">
+          <span class="frame-num">04</span>
+          <span>Cardiovascular AI</span>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="slide-content">
+        <div class="section-head">
+          <span class="eyebrow reveal stagger" style="--i: 0"
+            >Cardiac safety</span
+          >
+          <h2 class="reveal stagger" style="--i: 1">
+            Stratifying risk <em class="italic">earlier</em> in development.
+          </h2>
+        </div>
+
+        <div class="three-up">
+          <div class="card reveal stagger" style="--i: 2">
+            <span class="card-eyebrow">hERG · structure</span>
+            <h3>GNN &amp; <em>QSAR</em><br />classifiers</h3>
+            <p>
+              Graph neural networks and automated QSAR frameworks classify hERG
+              channel blockers with high accuracy on external validation sets.
+            </p>
+            <span class="cite">Zhang 2022 · Xu 2025</span>
+          </div>
+          <div class="card reveal stagger" style="--i: 3">
+            <span class="card-eyebrow">CiPA · multi-channel</span>
+            <h3>ML stratifies <em>torsadogenic risk</em></h3>
+            <p>
+              Trained on multi-ion channel simulation data — outperforms
+              single-biomarker thresholds in stratifying compounds by
+              torsadogenic risk.
+            </p>
+            <span class="cite">Zhang, Tarabanis, Jethani 2024</span>
+          </div>
+          <div class="card reveal stagger" style="--i: 4">
+            <span class="card-eyebrow">QTNet · clinical ECG</span>
+            <h3>Single-lead deep learning</h3>
+            <p>
+              QTNet predicts drug-induced QT prolongation directly from ECG;
+              deep-learning models extend the signal to single-lead data.
+            </p>
+            <span class="cite">JACC 2024 · PLOS Digital Health 2024</span>
+          </div>
+        </div>
+
+        <p
+          class="reveal stagger small"
+          style="
+            --i: 5;
+            margin-top: clamp(0.8rem, 2vh, 1.4rem);
+            font-style: italic;
+            color: var(--text-muted);
+          "
+        >
+          Pattern across cardiac AI: integrate chemical structure with on- and
+          off-target activity — but most studies remain retrospective.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+       SLIDE 5 — CNS, respiratory & broader
+       ============================================================ -->
+    <section class="slide" data-title="Beyond the heart">
+      <div class="orb-layer">
+        <div
+          class="orb"
+          style="
+            width: 40vw;
+            height: 40vw;
+            background: var(--orb-3);
+            top: 60%;
+            left: -12vw;
+            animation-delay: -6s;
+          "
+        ></div>
+        <div
+          class="orb"
+          style="
+            width: 36vw;
+            height: 36vw;
+            background: var(--orb-1);
+            top: -12vw;
+            right: 20%;
+            animation-delay: -2s;
+          "
+        ></div>
+      </div>
+
+      <div class="slide-frame">
+        <div class="frame-row">
+          <span class="frame-num">05</span>
+          <span>Beyond the heart</span>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="slide-content">
+        <div class="section-head">
+          <span class="eyebrow reveal stagger" style="--i: 0"
+            >CNS · respiratory · in vitro · behavioral</span
+          >
+          <h2 class="reveal stagger" style="--i: 1">
+            AI is moving across
+            <em class="italic">every core-battery</em> system.
+          </h2>
+        </div>
+
+        <div class="row-list">
+          <div class="row reveal stagger" style="--i: 2">
+            <div class="row-icon">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M12 2a4 4 0 0 0-4 4v1a4 4 0 0 0-4 4 4 4 0 0 0 1 2.6 4 4 0 0 0 0 4.4 4 4 0 0 0 4 2 4 4 0 0 0 3 1 4 4 0 0 0 3-1 4 4 0 0 0 4-2 4 4 0 0 0 0-4.4 4 4 0 0 0 1-2.6 4 4 0 0 0-4-4V6a4 4 0 0 0-4-4z"
+                />
+              </svg>
+            </div>
+            <div>
+              <div class="row-title">Central nervous system</div>
+              <div class="row-desc">
+                Blood–brain barrier permeability — masked graph transformers and
+                LLM&nbsp;+&nbsp;ML hybrids predict from molecular structure.
+              </div>
+            </div>
+            <div class="row-cite">Cha 2025 · Sci Rep 2024</div>
+          </div>
+
+          <div class="row reveal stagger" style="--i: 3">
+            <div class="row-icon">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M3 12c1-3 3-5 6-5s5 2 6 5-1 5-4 5-5-1-6-3z" />
+                <path d="M14 12h7" />
+              </svg>
+            </div>
+            <div>
+              <div class="row-title">Respiratory</div>
+              <div class="row-desc">
+                Unsupervised classification of plethysmography signals using
+                advanced visual representations.
+              </div>
+            </div>
+            <div class="row-cite">Front Physiol 2023</div>
+          </div>
+
+          <div class="row reveal stagger" style="--i: 4">
+            <div class="row-icon">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M3 12h3l2-4 4 8 2-4h7" />
+              </svg>
+            </div>
+            <div>
+              <div class="row-title">In vitro electrophysiology</div>
+              <div class="row-desc">
+                Machine learning &amp; complex-network analysis of MEA neuronal
+                biosensor data to characterise drug effects.
+              </div>
+            </div>
+            <div class="row-cite">Sci Rep 2025</div>
+          </div>
+
+          <div class="row reveal stagger" style="--i: 5">
+            <div class="row-icon">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="8" r="4" />
+                <path d="M5 22a7 7 0 0 1 14 0" />
+              </svg>
+            </div>
+            <div>
+              <div class="row-title">
+                Behavioural &amp; in&nbsp;vivo monitoring
+              </div>
+              <div class="row-desc">
+                Computer-vision pipelines for canine activity and open-field
+                rodent experiments.
+              </div>
+            </div>
+            <div class="row-cite">Front Toxicol 2026 · Appl Sci 2024</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+       SLIDE 6 — Digital toxicologic pathology
+       ============================================================ -->
+    <section class="slide" data-title="Digital pathology">
+      <div class="orb-layer">
+        <div
+          class="orb"
+          style="
+            width: 55vw;
+            height: 55vw;
+            background: var(--orb-1);
+            top: -15vw;
+            left: -10vw;
+          "
+        ></div>
+        <div
+          class="orb"
+          style="
+            width: 35vw;
+            height: 35vw;
+            background: var(--orb-2);
+            bottom: -8vw;
+            right: -5vw;
+            animation-delay: -7s;
+          "
+        ></div>
+      </div>
+
+      <div class="slide-frame">
+        <div class="frame-row">
+          <span class="frame-num">06</span>
+          <span>Digital pathology</span>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="slide-content">
+        <div class="section-head">
+          <span class="eyebrow reveal stagger" style="--i: 0"
+            >Toxicologic pathology · the headline</span
+          >
+        </div>
+
+        <div class="pull-quote reveal stagger" style="--i: 1">
+          Deep-learning frameworks trained on large slide archives
+          <em>match</em> — or <span class="highlight">exceed</span> —
+          board-certified pathologist performance in lesion identification.
+        </div>
+
+        <p
+          class="reveal stagger small"
+          style="
+            --i: 2;
+            margin-top: clamp(1rem, 2.5vh, 1.6rem);
+            font-family: var(--font-mono);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent-warm);
+          "
+        >
+          — Jaume et al., 2024
+        </p>
+
+        <div
+          class="reveal stagger"
+          style="
+            --i: 3;
+            margin-top: clamp(1.2rem, 3vh, 2rem);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.7rem, 1.5vw, 1.2rem);
+          "
+        >
+          <div class="card">
+            <span class="card-eyebrow">Whole-slide</span>
+            <p>
+              Weakly supervised frameworks for animal-study digital pathology.
+            </p>
+          </div>
+          <div class="card">
+            <span class="card-eyebrow">Open tooling</span>
+            <p>
+              QuPath and similar packages anchor the digital-pathology stack.
+            </p>
+          </div>
+          <div class="card">
+            <span class="card-eyebrow">Caveat</span>
+            <p style="color: var(--accent); font-weight: 600">
+              Most studies remain retrospective; prospective wins are still
+              rare.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+       SLIDE 7 — SPS 2024 survey
+       ============================================================ -->
+    <section class="slide" data-title="SPS 2024 survey">
+      <div class="orb-layer">
+        <div
+          class="orb"
+          style="
+            width: 42vw;
+            height: 42vw;
+            background: var(--orb-2);
+            top: -10vw;
+            right: -8vw;
+            animation-delay: -3s;
+          "
+        ></div>
+        <div
+          class="orb"
+          style="
+            width: 34vw;
+            height: 34vw;
+            background: var(--orb-3);
+            bottom: -12vw;
+            left: -6vw;
+            animation-delay: -11s;
+          "
+        ></div>
+      </div>
+
+      <div class="slide-frame">
+        <div class="frame-row">
+          <span class="frame-num">07</span>
+          <span>SPS 2024 survey</span>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="slide-content">
+        <div class="section-head">
+          <span class="eyebrow reveal stagger" style="--i: 0"
+            >SPS 2024 · first-ever AI survey</span
+          >
+          <h2 class="reveal stagger" style="--i: 1">
+            Where the field <em class="italic">actually stands</em>.
+          </h2>
+        </div>
+
+        <div class="survey-block">
+          <div class="ring reveal stagger" style="--i: 2">
+            <svg viewBox="0 0 200 200" aria-hidden="true">
+              <circle
+                class="ring-bg"
+                cx="100"
+                cy="100"
+                r="80"
+                fill="none"
+                stroke-width="14"
+              />
+              <circle
+                class="ring-fg"
+                cx="100"
+                cy="100"
+                r="80"
+                fill="none"
+                stroke-width="14"
+              />
+            </svg>
+            <div class="ring-center">
+              <div class="ring-num">52<em>%</em></div>
+              <div class="ring-label">using or planning AI</div>
+            </div>
+          </div>
+
+          <div class="survey-meta">
+            <p class="reveal stagger lede" style="--i: 3">
+              Conducted at the 2024 SPS annual meeting symposium
+              <em style="color: var(--accent); font-weight: 600"
+                >"Innovative Technologies with Application to Safety
+                Pharmacology."</em
+              >
+            </p>
+            <div class="survey-line reveal stagger" style="--i: 4">
+              <span class="label">Total respondents (adoption status)</span>
+              <span class="value">N = 89</span>
+            </div>
+            <div class="survey-line featured reveal stagger" style="--i: 5">
+              <span class="label">Reporting current or planned AI use</span>
+              <span class="value">n = 46</span>
+            </div>
+            <div class="survey-line reveal stagger" style="--i: 6">
+              <span class="label"
+                >Subset answering on phase &amp; perceived impact</span
+              >
+              <span class="value">n = 46</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+       SLIDE 8 — Regulatory landscape
+       ============================================================ -->
+    <section class="slide" data-title="Regulatory landscape">
+      <div class="orb-layer">
+        <div
+          class="orb"
+          style="
+            width: 48vw;
+            height: 48vw;
+            background: var(--orb-1);
+            top: -15vw;
+            right: -10vw;
+            animation-delay: -5s;
+          "
+        ></div>
+        <div
+          class="orb"
+          style="
+            width: 30vw;
+            height: 30vw;
+            background: var(--orb-3);
+            bottom: -6vw;
+            left: 8vw;
+            animation-delay: -13s;
+          "
+        ></div>
+      </div>
+
+      <div class="slide-frame">
+        <div class="frame-row">
+          <span class="frame-num">08</span>
+          <span>Regulatory landscape</span>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="slide-content">
+        <div class="section-head">
+          <span class="eyebrow reveal stagger" style="--i: 0"
+            >Guidance · 2024 → 2026</span
+          >
+          <h2 class="reveal stagger" style="--i: 1">
+            Regulators are <em class="italic">catching up</em>.
+          </h2>
+        </div>
+
+        <div class="timeline reveal stagger" style="--i: 2">
+          <div class="timeline-track"></div>
+          <div class="timeline-items">
+            <div class="t-item">
+              <div class="t-date">2024</div>
+              <div class="t-title">
+                EMA reflection paper · <em>EU AI Act</em>
+              </div>
+              <div class="t-desc">
+                EMA reflection paper on AI in the medicinal product lifecycle.
+                Regulation (EU) 2024/1689 — harmonised AI rules.
+              </div>
+            </div>
+
+            <div class="t-item featured">
+              <div class="t-date">January 2025 · headline</div>
+              <div class="t-title">FDA's first AI-specific draft guidance</div>
+              <div class="t-desc">
+                <em style="color: var(--accent); font-weight: 600"
+                  >"Considerations for the Use of Artificial Intelligence to
+                  Support Regulatory Decision-Making for Drug and Biological
+                  Products"</em
+                >
+                — credibility, governance, risk management.
+              </div>
+            </div>
+
+            <div class="t-item">
+              <div class="t-date">2025</div>
+              <div class="t-title">FDA roadmap · reducing animal testing</div>
+              <div class="t-desc">
+                Roadmap to Reducing Animal Testing in Preclinical Safety Studies
+                — aligned push toward in&nbsp;silico and AI-enabled non-clinical
+                evaluation.
+              </div>
+            </div>
+
+            <div class="t-item">
+              <div class="t-date">2026 → onward</div>
+              <div class="t-title">
+                Guiding Principles of <em>Good AI Practice</em>
+              </div>
+              <div class="t-desc">
+                Cross-stakeholder principles emerging as the framework
+                consolidates across pharma, regulators, and methods societies.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+       SLIDE 9 — Challenges
+       ============================================================ -->
+    <section class="slide" data-title="Challenges">
+      <div class="orb-layer">
+        <div
+          class="orb"
+          style="
+            width: 38vw;
+            height: 38vw;
+            background: var(--orb-2);
+            top: 55%;
+            left: -8vw;
+            animation-delay: -1s;
+          "
+        ></div>
+        <div
+          class="orb"
+          style="
+            width: 42vw;
+            height: 42vw;
+            background: var(--orb-3);
+            top: -10vw;
+            right: -5vw;
+            animation-delay: -8s;
+          "
+        ></div>
+      </div>
+
+      <div class="slide-frame">
+        <div class="frame-row">
+          <span class="frame-num">09</span>
+          <span>Challenges</span>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="slide-content">
+        <div class="section-head">
+          <span class="eyebrow reveal stagger" style="--i: 0"
+            >What still has to be solved</span
+          >
+          <h2 class="reveal stagger" style="--i: 1">
+            The community's caution is <em class="italic">appropriate</em>, not
+            obstructionist.
+          </h2>
+        </div>
+
+        <div class="four-up">
+          <div class="card reveal stagger" style="--i: 2">
+            <span class="card-eyebrow">Constraint 01</span>
+            <h3>Data quality &amp; availability</h3>
+            <p>
+              Domain-specific datasets are
+              <span class="underline">small, heterogeneous, and biased</span> by
+              historical screening practices.
+            </p>
+          </div>
+          <div class="card reveal stagger" style="--i: 3">
+            <span class="card-eyebrow">Constraint 02</span>
+            <h3>Validation gaps</h3>
+            <p>
+              Few
+              <em style="color: var(--accent); font-weight: 600"
+                >prospective</em
+              >
+              studies; most evidence is retrospective and limited to internal
+              benchmarks.
+            </p>
+          </div>
+          <div class="card reveal stagger" style="--i: 4">
+            <span class="card-eyebrow">Constraint 03</span>
+            <h3>Interpretability</h3>
+            <p>
+              <span class="underline">Explainable AI</span> remains a regulatory
+              expectation — opaque predictions don't carry weight in safety
+              review.
+            </p>
+          </div>
+          <div class="card reveal stagger" style="--i: 5">
+            <span class="card-eyebrow">Constraint 04</span>
+            <h3>Implementation</h3>
+            <p>
+              Regulatory acceptance, governance, and integration with
+              established study workflows lag behind technical capability.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+       SLIDE 10 — Future directions + closing
+       ============================================================ -->
+    <section class="slide" data-title="Future directions">
+      <div class="orb-layer">
+        <div
+          class="orb"
+          style="
+            width: 55vw;
+            height: 55vw;
+            background: var(--orb-1);
+            top: -20vw;
+            left: -10vw;
+          "
+        ></div>
+        <div
+          class="orb"
+          style="
+            width: 38vw;
+            height: 38vw;
+            background: var(--orb-2);
+            bottom: -12vw;
+            right: -8vw;
+            animation-delay: -10s;
+          "
+        ></div>
+        <div
+          class="orb"
+          style="
+            width: 28vw;
+            height: 28vw;
+            background: var(--orb-3);
+            top: 30%;
+            right: 30%;
+            animation-delay: -16s;
+          "
+        ></div>
+      </div>
+
+      <div class="slide-frame">
+        <div class="frame-row">
+          <span class="frame-num">10</span>
+          <span>Where the field is heading</span>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="slide-content closing">
+        <div class="section-head" style="margin-bottom: 0">
+          <span class="eyebrow reveal stagger" style="--i: 0"
+            >Future directions</span
+          >
+        </div>
+
+        <div class="three-up">
+          <div class="card reveal stagger" style="--i: 1">
+            <span class="card-eyebrow">Direction 01</span>
+            <h3>Multimodal <em>foundation models</em></h3>
+            <p>
+              Joint reasoning over chemical structure, assay readouts, imaging,
+              and textual reports.
+            </p>
+          </div>
+          <div class="card reveal stagger" style="--i: 2">
+            <span class="card-eyebrow">Direction 02</span>
+            <h3>Federated learning</h3>
+            <p>
+              Cross-pharma model training without sharing proprietary data —
+              e.g. <span class="underline">MELLODDY</span>.
+            </p>
+          </div>
+          <div class="card reveal stagger" style="--i: 3">
+            <span class="card-eyebrow">Direction 03</span>
+            <h3>Organ-on-chip × <em>AI</em></h3>
+            <p>
+              Microphysiological systems integrated with AI-driven readouts,
+              advancing non-animal evaluation.
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="closing-quote reveal stagger"
+          style="
+            --i: 4;
+            margin-top: auto;
+            padding-top: clamp(1rem, 2.5vh, 1.6rem);
+            border-top: 1px solid var(--line);
+          "
+        >
+          AI is a <span class="accent">supportive computational tool</span> —
+          not a replacement for safety-pharmacology judgment.
+        </div>
+
+        <div class="closing-attr reveal stagger" style="--i: 5">
+          — Miller et&nbsp;al., 2026
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+       PRESENTATION CONTROLLER
+       ============================================================ -->
+    <script>
+      /**
+       * SlidePresentation
+       * Wires up scroll-snap reveals, keyboard / touch nav,
+       * progress bar, and the right-edge nav-dot rail.
+       */
+      class SlidePresentation {
+        constructor() {
+          this.slides = Array.from(document.querySelectorAll(".slide"));
+          this.current = 0;
+          this.progressEl = document.querySelector(".progress-bar");
+          this.navDotsEl = document.querySelector(".nav-dots");
+
+          this.setupNavDots();
+          this.setupIntersectionObserver();
+          this.setupKeyboardNav();
+          this.setupTouchNav();
+          this.setupScrollProgress();
+        }
+
+        /* Reveal animations and "current slide" tracking via IntersectionObserver. */
+        setupIntersectionObserver() {
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting && entry.intersectionRatio > 0.55) {
+                  entry.target.classList.add("visible");
+                  const idx = this.slides.indexOf(entry.target);
+                  if (idx !== -1) this.setActive(idx);
+                }
+              });
+            },
+            { threshold: [0, 0.55, 1] },
+          );
+
+          this.slides.forEach((s) => observer.observe(s));
+        }
+
+        /* Right-edge nav dots — clicking jumps to the slide.
+         Always clear before building. If the document was ever serialized
+         (e.g. saved via outerHTML) while dots existed, re-opening would
+         otherwise duplicate them on top of the existing ones. */
+        setupNavDots() {
+          this.navDotsEl.replaceChildren();
+          this.slides.forEach((slide, i) => {
+            const btn = document.createElement("button");
+            btn.setAttribute(
+              "aria-label",
+              `Go to slide ${i + 1}: ${slide.dataset.title || ""}`,
+            );
+            btn.addEventListener("click", () =>
+              slide.scrollIntoView({ behavior: "smooth" }),
+            );
+            this.navDotsEl.appendChild(btn);
+          });
+        }
+
+        setActive(idx) {
+          if (idx === this.current) return;
+          this.current = idx;
+          const dots = this.navDotsEl.querySelectorAll("button");
+          dots.forEach((d, i) => d.classList.toggle("active", i === idx));
+        }
+
+        setupKeyboardNav() {
+          document.addEventListener("keydown", (e) => {
+            if (["ArrowDown", "ArrowRight", " ", "PageDown"].includes(e.key)) {
+              e.preventDefault();
+              this.go(this.current + 1);
+            } else if (["ArrowUp", "ArrowLeft", "PageUp"].includes(e.key)) {
+              e.preventDefault();
+              this.go(this.current - 1);
+            } else if (e.key === "Home") {
+              e.preventDefault();
+              this.go(0);
+            } else if (e.key === "End") {
+              e.preventDefault();
+              this.go(this.slides.length - 1);
+            }
+          });
+        }
+
+        /* Minimal swipe support — vertical only (matches scroll-snap axis). */
+        setupTouchNav() {
+          let startY = null;
+          document.addEventListener(
+            "touchstart",
+            (e) => {
+              startY = e.touches[0].clientY;
+            },
+            { passive: true },
+          );
+          document.addEventListener(
+            "touchend",
+            (e) => {
+              if (startY == null) return;
+              const dy = e.changedTouches[0].clientY - startY;
+              if (Math.abs(dy) > 60) {
+                this.go(this.current + (dy < 0 ? 1 : -1));
+              }
+              startY = null;
+            },
+            { passive: true },
+          );
+        }
+
+        go(idx) {
+          const clamped = Math.max(0, Math.min(this.slides.length - 1, idx));
+          this.slides[clamped].scrollIntoView({ behavior: "smooth" });
+        }
+
+        /* Top progress bar reflects scroll position across the document. */
+        setupScrollProgress() {
+          const update = () => {
+            const total =
+              document.documentElement.scrollHeight - window.innerHeight;
+            const pct = total > 0 ? (window.scrollY / total) * 100 : 0;
+            this.progressEl.style.width = pct + "%";
+          };
+          window.addEventListener("scroll", update, { passive: true });
+          window.addEventListener("resize", update);
+          update();
+        }
+      }
+
+      /* Boot once the DOM is ready. */
+      if (document.readyState === "loading") {
+        document.addEventListener(
+          "DOMContentLoaded",
+          () => new SlidePresentation(),
+        );
+      } else {
+        new SlidePresentation();
+      }
+
+      /* Reveal the very first slide immediately on load
+       so it's visible even if the IntersectionObserver hasn't fired yet. */
+      window.addEventListener("load", () => {
+        document.querySelector(".slide").classList.add("visible");
+      });
+    </script>
+  </body>
+</html>
