@@ -1,6 +1,6 @@
 ---
 name: branded-slides
-description: Author beautiful HTML decks with the project's locked brand (Space Grotesk + Inter, 16-px-min body, no italic emphasis, minimal chrome) plus optional AI image generation via OpenRouter Nano Banana 2. Use when the user asks for a deck, slides, talk, or presentation in this repo and wants the iterated visual style applied automatically. For editable PowerPoint output, cross-reference the in-repo `marp-slides` skill instead.
+description: Author beautiful slide decks with the project's locked brand (Space Grotesk + Inter, 16-px-min body, no italic emphasis, minimal chrome). Two output formats from two source files — HTML (in-browser, scroll-snap, AI-generated images via OpenRouter Nano Banana 2) for presenting, and editable .pptx (via pandoc + branded reference.pptx) for stakeholders who edit in PowerPoint/Keynote. Use when the user asks for a deck, slides, talk, or presentation in this repo.
 ---
 
 # branded-slides
@@ -19,7 +19,7 @@ Trigger on any of:
 - "Slides for a talk on X"
 - Any request involving slides/decks/presentations in this repo
 
-If the user explicitly asks for **editable PowerPoint output** (".pptx I can edit in Keynote/PowerPoint"), use the in-repo `marp-slides` skill instead — it owns that path. See `docs/PPTX_EXPORT.md` for a hand-off note.
+If the user wants **editable PowerPoint output** (".pptx I can edit in Keynote/PowerPoint"), this skill also owns that path through a separate Markdown source file rendered via pandoc. See **Phase 5** below and `docs/PPTX_EXPORT.md`. Two outputs, two source files, one brand.
 
 ## How it works
 
@@ -37,6 +37,9 @@ Phase 3  ─►  (optional) generate_images.sh → AI images per slide via OpenR
         │
         ▼
 Phase 4  ─►  Open in browser, report cost summary, hand off
+        │
+        ▼
+Phase 5  ─►  (optional) editable PPTX from Markdown source via pandoc
 ```
 
 The brand `<style>` block is shipped verbatim from `templates/template.html` (which is the user's accepted artefact captured byte-for-byte). Do not re-derive it from scratch.
@@ -124,7 +127,19 @@ Open the deck and report:
 > Built `decks/<slug>/index.html` ({palette-mode}, 10 slides).
 > {if images: Added N AI images at `decks/<slug>/images/`, ~$X.XX cost summary.}
 > Edit content directly in the HTML file. To regenerate images for a slide, edit its `data-image-prompt` and re-run `generate_images.sh`.
-> For editable PowerPoint, see `.claude/skills/branded-slides/docs/PPTX_EXPORT.md`.
+> For editable PowerPoint, run Phase 5 (`scripts/export_pptx.sh decks/<slug>/source.md`).
+
+## Phase 5 — Optional: editable PPTX from a Markdown source
+
+Trigger when the user asks for a `.pptx`, "editable PowerPoint", "Keynote-friendly version", or wants to share with someone who edits in PowerPoint/Keynote/Impress. The HTML deck is the canonical artefact for presenting; the PPTX is a stakeholder-edit format with a separate Markdown source.
+
+1. Copy `templates/starter.md` to `decks/<slug>/source.md`.
+2. Set front-matter `palette:` to match the HTML deck (`light-clinical` or `dark-minimal`), update `title` / `author` / `date`.
+3. Author slide-by-slide in the Markdown — `---` separates slides, one H1 per slide is the title. Use the patterns in `starter.md` for two-column, image, and table slides.
+4. Render: `scripts/export_pptx.sh decks/<slug>/source.md`. The script reads `palette:` from front-matter, picks `themes/<palette>/reference.pptx`, and runs pandoc.
+5. Output: `decks/<slug>/source.pptx` (override with `--output`).
+
+**Why a separate Markdown source instead of converting the HTML?** The HTML deck uses rich layouts (`.three-up`, `.timeline`, `.ring`, AI imagery) that have no clean Markdown analogue — auto-translating loses content; manual translating is faster and lets the PPTX content diverge intentionally (typically denser-with-text since it can't lean on visuals). See `docs/PPTX_EXPORT.md` for the full translation table and authoring rules.
 
 ## File map
 
@@ -135,33 +150,42 @@ Open the deck and report:
 ├── templates/
 │   ├── template.html             # brand-locked HTML shell with placeholders
 │   ├── slide-patterns.md         # HTML snippets for each layout pattern
-│   └── starter-deck.html         # 10-slide example deck pre-filled with brand
+│   ├── starter-deck.html         # 10-slide example HTML deck
+│   └── starter.md                # 10-slide example Markdown source for PPTX path
 ├── scripts/
-│   ├── generate_images.sh        # OpenRouter image-gen orchestrator
-│   └── inject_images.py          # idempotent HTML rewriter (stdlib only)
+│   ├── generate_images.sh        # OpenRouter image-gen orchestrator (Phase 3)
+│   ├── inject_images.py          # idempotent HTML rewriter (stdlib only)
+│   ├── export_pptx.sh            # pandoc-based MD → branded PPTX renderer (Phase 5)
+│   └── build_reference_pptx.py   # one-shot script that builds themes/*/reference.pptx
+├── themes/
+│   ├── light-clinical/reference.pptx  # branded reference for pandoc (light palette)
+│   └── dark-minimal/reference.pptx    # branded reference for pandoc (dark palette)
 ├── assets/
 │   └── icons/                    # inline-SVG icons (currentColor strokes)
 └── docs/
-    ├── PPTX_EXPORT.md            # cross-reference to marp-slides for editable PPTX
+    ├── PPTX_EXPORT.md            # PPTX path: authoring rules + translation table
     └── IMAGE_PROMPT_GUIDE.md     # auto-prompt construction + brand suffixes
 ```
 
 ## Tooling requirements
 
-- **Bash + curl** — Phase 3 image generation
-- **python3 (stdlib only)** — `inject_images.py`. No `pillow`, no `python-pptx`.
+- **Bash + curl** — Phase 3 image generation, Phase 5 export wrapper
+- **python3 (stdlib only)** — `inject_images.py` and `build_reference_pptx.py`. No `pillow`, no `python-pptx`.
 - **A modern browser** — Phase 4 preview. Decks are scroll-snap HTML.
 - **OpenRouter API key** — only required for Phase 3. The skill auto-resolves it from (in order): `$OPENROUTER_API_KEY`, `$OPENROUTER_KEY`, then dotenv-style file `~/.claude/.env` (which Claude Code already maintains for many users). No need to copy keys around — set it in any one of those places.
+- **pandoc (≥ 3.0)** — only required for Phase 5. Install with `brew install pandoc` on macOS.
 
-No Node/npm. No package install during normal use. The deck is a single `index.html` file plus an `images/` folder.
+No Node/npm. The HTML deck is a single `index.html` file plus an `images/` folder. The PPTX path adds an editable `source.md` and a generated `source.pptx`.
 
 ## Cross-references
 
-- **Editable PowerPoint output** — `.claude/skills/marp-slides/SKILL.md` (in this repo). The two skills coexist; pick by output format.
 - **Brand guidelines source of truth** — `BRAND.md` in this skill.
+- **PPTX authoring rules + translation table** — `docs/PPTX_EXPORT.md` in this skill.
 - **OpenRouter API shape** — see the user's reference memory at `~/.claude/projects/-Users-michaelhenry-Documents-Projects-claude-slides/memory/reference_openrouter_nano_banana.md`.
 
 ## Validation checklist before reporting "done"
+
+HTML deck (Phases 1–4):
 
 - [ ] Deck file exists at `decks/<slug>/index.html` and has non-zero size.
 - [ ] `<body data-palette="...">` matches the user's chosen palette.
@@ -169,3 +193,9 @@ No Node/npm. No package install during normal use. The deck is a single `index.h
 - [ ] No slide contains a wall of prose. If a slide reads like a paragraph, split or trim.
 - [ ] If images were generated: `images/` folder exists, every cached PNG has a sibling `.prompt` sidecar, and the deck HTML references the images.
 - [ ] Open the deck in a browser; confirm scroll-snap works, nav dots highlight the active slide, and there are no console errors.
+
+PPTX deck (Phase 5, only if user opted in):
+
+- [ ] `decks/<slug>/source.md` exists with valid front-matter (title, palette).
+- [ ] `decks/<slug>/source.pptx` is non-zero and pandoc exited 0.
+- [ ] Open the .pptx in PowerPoint or Keynote; confirm the title slide is title-cased, body fonts render with reasonable fallback, and accent color matches the chosen palette.

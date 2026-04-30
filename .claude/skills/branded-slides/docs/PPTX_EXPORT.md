@@ -1,59 +1,88 @@
 # PPTX export
 
-`branded-slides` produces HTML, not PowerPoint. If the user needs an **editable** `.pptx` (real text boxes they can edit in PowerPoint, Keynote, or LibreOffice Impress), use the in-repo **`marp-slides`** skill instead — that's the path it owns.
+`branded-slides` produces two formats from two source files:
 
-The two skills coexist deliberately. Pick by output format:
+| Source                    | Output                                         | When to use                                                 |
+| ------------------------- | ---------------------------------------------- | ----------------------------------------------------------- |
+| `decks/<slug>/index.html` | HTML deck (in-browser, scroll-snap, AI images) | Presenting in a browser, sharing a URL, full-fidelity brand |
+| `decks/<slug>/source.md`  | Editable `.pptx` (real text boxes)             | Stakeholders who edit in PowerPoint/Keynote/Impress         |
 
-| Need                                                             | Skill                         |
-| ---------------------------------------------------------------- | ----------------------------- |
-| Self-contained HTML deck with brand + scroll-snap + AI images    | `branded-slides` (this skill) |
-| Editable `.pptx` for stakeholders who edit in PowerPoint/Keynote | `.claude/skills/marp-slides/` |
+The two paths share the brand (Space Grotesk + Inter, palette colors, accent) but **not** the source. Authoring is independent — the HTML deck has rich layouts (3-up cards, animated ring charts, AI-generated images) that don't translate to PPTX layouts. The PPTX path is for content that needs to be edited downstream; the HTML path is for everything else.
 
-## Hand-off pattern
-
-When the user asks for an editable PowerPoint output:
-
-1. Don't try to convert this skill's HTML to PPTX. Marp's `--pptx` mode produces image-only slides (each slide is a rasterized PNG embedded in PPTX) — that's not editable text and defeats the purpose. The exemplar deck the user pointed to (the NotebookLM-generated PPTX in iCloud Downloads) is exactly this kind of "PPTX wrapping images" — looks like a deck, can't be edited.
-2. Direct the user to the `marp-slides` skill. Its workflow:
+## Quick start: PPTX from Markdown
 
 ```bash
-# In a fresh deck workspace
-DECK=decks/<topic>/deck.md
-THEME=$(grep -m1 '^theme:' "$DECK" | awk '{print $2}' | tr -d '"')
-SKILL=.claude/skills/marp-slides
-pandoc "$DECK" \
-  -o "${DECK%.md}.pptx" \
-  --reference-doc="$SKILL/themes/$THEME/reference.pptx" \
-  --slide-level=1 \
-  --resource-path=".:$(dirname "$DECK"):$SKILL"
+# Copy the starter to a deck folder
+mkdir -p decks/<slug>
+cp .claude/skills/branded-slides/templates/starter.md decks/<slug>/source.md
+
+# Edit the front-matter and body in your editor of choice
+# (palette: light-clinical | dark-minimal)
+
+# Render to .pptx
+.claude/skills/branded-slides/scripts/export_pptx.sh decks/<slug>/source.md
 ```
 
-The `marp-slides` skill ships three pandoc reference themes:
+The script reads the `palette:` value from front-matter and picks the matching `themes/<palette>/reference.pptx` for brand colors and fonts.
 
-| Theme             | Best for                                                                                    |
-| ----------------- | ------------------------------------------------------------------------------------------- |
-| `modern-minimal`  | Closest to the Light Clinical brand mode of `branded-slides` (Inter + blue accent on white) |
-| `dark-technical`  | Closest to the Dark Minimal brand mode (dark bg + accent) — not exact, palette differs      |
-| `editorial-serif` | Different aesthetic; pick only if user asks for editorial/serif feel                        |
+## How the brand reaches PowerPoint
 
-3. Don't promise visual parity. PPTX can't render scroll-snap, the reveal-on-enter animations, or the SVG-driven ring/donut charts the way HTML can. Some patterns degrade:
+`themes/<palette>/reference.pptx` is the bridge. Each is a regular PowerPoint file whose `theme1.xml` has been rewritten with the brand's palette colors (`accent1` = `#2563eb` for light-clinical, `#ef4444` for dark-minimal) and Latin major/minor fonts (Space Grotesk + Inter). Pandoc reads the colors, fonts, and slide masters from the reference and applies them to the rendered deck.
 
-| Pattern in this skill                 | What happens in PPTX                                                                     |
-| ------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Scroll-snap navigation                | Becomes click-through slides                                                             |
-| Reveal-on-enter `.stagger` animations | Gone — content shows on slide entry                                                      |
-| Animated SVG ring/donut               | Becomes a static donut shape                                                             |
-| Hover row highlights                  | Gone                                                                                     |
-| AI-generated `.slide-bg` images       | Can be embedded as full-bleed pictures, but text must be re-typed in editable text boxes |
+To regenerate the references (e.g. after editing palettes):
 
-4. If the user wants both — branded HTML for presenting, editable PPTX for sharing — author the deck in `marp-slides` first (which uses Markdown), then optionally re-render to HTML via Marp CLI. That's a one-source-two-output pattern. The brand of `branded-slides` is HTML-specific; recreating it 1:1 in PPTX would require duplicating decisions in the marp-slides themes, which is out of scope for this skill.
+```bash
+python3 .claude/skills/branded-slides/scripts/build_reference_pptx.py
+```
 
-## Why we don't auto-convert
+That script fetches pandoc's default reference, patches its OOXML theme block with the brand values from `THEMES`, and writes the patched files back to `themes/light-clinical/reference.pptx` and `themes/dark-minimal/reference.pptx`.
 
-If a future iteration of `branded-slides` adds a "now give me PPTX too" button, it would mean:
+## What translates, what doesn't
 
-- Importing pandoc + python-pptx + Pillow as runtime deps (this skill currently has none of those).
-- Hand-mapping every CSS layout pattern to a PPTX slide layout.
-- Maintaining theme parity in two formats — every time the brand evolves, two files change.
+| HTML brand feature                   | PPTX equivalent                                                                                                                                             |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Scroll-snap navigation               | Click-through slides                                                                                                                                        |
+| `.reveal` stagger animations         | Gone — content shows on slide entry                                                                                                                         |
+| Animated SVG ring chart              | Becomes a static numeric callout (use a real chart shape if needed)                                                                                         |
+| Inline SVG icons via `currentColor`  | Pandoc doesn't carry SVG into PPTX cleanly — use the brand's accent color directly via emphasis or color text                                               |
+| AI-generated `.slide-bg` images      | Embed as full-bleed background pictures via the standard `![alt](path.png)` Markdown                                                                        |
+| `.slide-image` contextual side image | Embed as right-aligned picture via the same syntax                                                                                                          |
+| Hover row highlights                 | Gone                                                                                                                                                        |
+| Custom fonts (Space Grotesk, Inter)  | PowerPoint substitutes if not installed; the typeface is named in the reference theme but PowerPoint's font fallback applies on machines that don't have it |
 
-Cleaner to let `marp-slides` own that path and keep this skill HTML-pure.
+## Authoring rules for the Markdown source
+
+1. **Front-matter is required.** Set `palette:` to `light-clinical` or `dark-minimal`. Add `title`, `author`, `date`, optional `footer`.
+2. **`---` separates slides.** One H1 per slide is the slide title.
+3. **Two columns** use pandoc fenced divs:
+   ```
+   ::: columns
+   :::: column
+   left content
+   :::::
+   :::: column
+   right content
+   :::::
+   :::
+   ```
+4. **Images** use plain `![alt text](path)`. The alt text becomes the caption underneath. Paths resolve against the source's directory and the skill root.
+5. **Speaker notes** go inside HTML comments — pandoc converts them to PPTX notes:
+   ```
+   <!--
+   Speaker note: emphasize the trade-off here.
+   -->
+   ```
+6. **Keep slides sparse.** One idea per slide. Three is the max for body bullets.
+
+## Tooling requirements
+
+- `pandoc` (≥ 3.0). Install via `brew install pandoc` on macOS.
+- `python3` (stdlib only) — only needed to regenerate the reference.pptx files.
+
+The HTML deck path needs neither.
+
+## Why dual sources, not one?
+
+It's tempting to ask: "can't we generate Markdown from the HTML deck so there's only one source?" Trying it is illuminating: the HTML uses rich layouts (`.three-up`, `.timeline`, `.ring`, etc.) that have no clean Markdown analogue. Auto-translating loses content; manual translating is faster.
+
+The honest framing is that **the two outputs serve different audiences, so they're allowed to diverge in content too.** The PPTX deck for stakeholders is often shorter and denser-with-text-than the HTML deck (which carries information visually). Dual sources make that intentional rather than a degraded translation.
