@@ -22,3 +22,8 @@ ai-safety-pharmacology-frontend/
 # Committing them would mean every clone gets the original generator's
 # images instead of their own.
 .claude/skills/branded-slides/templates/images/
+
+# Node.js dependency installs (dom-to-pptx-bridge tooling). package.json
+# and the lockfile are tracked; node_modules itself is regenerable via
+# `npm install` and pulls in ~200 MB including Playwright + Chromium.
+node_modules/
